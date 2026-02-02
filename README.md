@@ -1,44 +1,16 @@
-# .
+# Meowtrics
 
-This template should help get you started developing with Vue 3 in Vite.
+A simple web app for tracking and visualizing data about my cats — weight over time, meal preferences, and potentially more in the future.
 
-## Recommended IDE Setup
+Built with Vue 3 and Apache ECharts. Hosted on GitHub Pages.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## How it works
 
-## Recommended Browser Setup
+Data is collected via iOS Shortcuts on my iPhone. Each shortcut appends a row to a CSV file in iCloud Drive, which automatically commits and pushes the updated file to this repo. A GitHub Actions workflow then builds and deploys the app to GitHub Pages, so the site updates automatically whenever new data is synced. The app reads those CSV files at runtime and renders charts from them.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Development
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
