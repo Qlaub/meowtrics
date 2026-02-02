@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cummings-lunch-log",
+    "title": "Lunch Log",
+    "file": "/data/cummings-lunch-log",
+    "type": "lunch_log",
+    "cat": "Cummings",
+    "description": "Daily lunch can matchups and selections"
+  },
+  {
+    "id": "cummings-weight-log",
+    "title": "Weight Log",
+    "file": "/data/cummings-weight-log",
+    "type": "weight_log",
+    "cat": "Cummings",
+    "description": "Daily weight measurements"
+  },
+  {
+    "id": "obi-weight-log",
+    "title": "Weight Log",
+    "file": "/data/obi-weight-log",
+    "type": "weight_log",
+    "cat": "Obi",
+    "description": "Daily weight measurements"
+  }
+]

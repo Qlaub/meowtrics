@@ -1,85 +1,159 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { ref, watch } from 'vue'
+import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { loadManifest, groupBycat } from '@/data/manifest.js'
+
+const route = useRoute()
+const menuOpen = ref(false)
+const manifest = ref([])
+const error = ref(null)
+
+async function load() {
+  try {
+    manifest.value = await loadManifest()
+    error.value = null
+  } catch {
+    error.value = 'Failed to load datasets'
+  }
+}
+load()
+
+const grouped = () => groupBycat(manifest.value)
+
+watch(
+  () => route.fullPath,
+  () => {
+    menuOpen.value = false
+  },
+)
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
+  <header class="app-header">
+    <button class="hamburger" aria-label="Toggle menu" @click="menuOpen = !menuOpen">
+      <span :class="{ open: menuOpen }"></span>
+    </button>
+    <RouterLink to="/" class="app-title">Meowtrics</RouterLink>
   </header>
 
-  <RouterView />
+  <nav v-if="menuOpen" class="nav-menu">
+    <RouterLink to="/" class="nav-link">Home</RouterLink>
+    <template v-for="(datasets, cat) in grouped()" :key="cat">
+      <div class="nav-group-label">{{ cat }}</div>
+      <RouterLink
+        v-for="d in datasets"
+        :key="d.id"
+        :to="{ name: 'dataset', params: { datasetId: d.id } }"
+        class="nav-link nav-link--indent"
+      >
+        {{ d.title }}
+      </RouterLink>
+    </template>
+  </nav>
+
+  <main>
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
 }
 
-.logo {
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  text-decoration: none;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger span,
+.hamburger span::before,
+.hamburger span::after {
   display: block;
-  margin: 0 auto 2rem;
+  width: 1.25rem;
+  height: 2px;
+  background: var(--color-text);
+  transition: transform 0.2s;
+  position: absolute;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.hamburger span::before,
+.hamburger span::after {
+  content: '';
 }
 
-nav a.router-link-exact-active {
+.hamburger span::before {
+  transform: translateY(-6px);
+}
+
+.hamburger span::after {
+  transform: translateY(6px);
+}
+
+.hamburger span.open {
+  background: transparent;
+}
+
+.hamburger span.open::before {
+  transform: rotate(45deg);
+}
+
+.hamburger span.open::after {
+  transform: rotate(-45deg);
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
   color: var(--color-text);
+  text-decoration: none;
+  font-weight: 500;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.nav-link:hover {
+  background: var(--color-primary-soft);
+  text-decoration: none;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+.nav-link--indent {
+  padding-left: 2rem;
+  font-weight: 400;
 }
 
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.nav-group-label {
+  padding: 0.5rem 1rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
 }
 </style>
