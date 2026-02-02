@@ -11,7 +11,13 @@ const agg = computed(() => aggregateLunchLog(props.rows))
 const h2h = computed(() => buildHeadToHead(props.rows))
 
 function shortName(name) {
-  return name.replace(/^(Pate|Gravy) - Natural /, '').replace(/ Recipe$/, '')
+  const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
+  if (match) {
+    const [, type, food] = match
+    if (food === 'White Meat Chicken') return `Chicken ${type}`
+    return food
+  }
+  return name
 }
 
 const doubleBarOption = computed(() => {
