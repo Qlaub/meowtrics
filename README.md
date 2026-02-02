@@ -8,6 +8,11 @@ Built with Vue 3 and Apache ECharts. Hosted on GitHub Pages.
 
 Data is collected via iOS Shortcuts on my iPhone. Each shortcut appends a row to a CSV file in iCloud Drive, and then automatically calls a new Shortcut that commits and pushes the updated file to this repo. A GitHub Actions workflow then builds and deploys the app to GitHub Pages, so the site updates automatically whenever new data is synced. The app reads those CSV files at runtime and renders charts from them.
 
+## What's being tracked
+
+- **Weight logs** — Periodic weight measurements for each cat.
+- **Lunch log (Cummings)** — At lunchtime, Cummings is presented with two cans of food and whichever one he rubs up against is the winner. The bowl and utensil are readied beforehand so the chosen can is opened and served immediately in front of him — reinforcing the connection between his choice and the meal.
+
 ## Development
 
 ```sh
