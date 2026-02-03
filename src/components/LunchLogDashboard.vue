@@ -39,6 +39,8 @@ function shortName(name) {
   if (match) {
     const [, type, food] = match
     if (food === 'White Meat Chicken') return `Chicken ${type}`
+    if (food === 'Trout and Tuna') return 'Trout'
+    if (food === 'Wild Alaskan Salmon') return 'Salmon'
     return food
   }
   return name
