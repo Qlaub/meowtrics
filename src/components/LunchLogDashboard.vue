@@ -36,6 +36,10 @@ function contrastTextColor(bgRgb) {
 const agg = computed(() => aggregateLunchLog(props.rows))
 const h2h = computed(() => buildHeadToHead(props.rows))
 const barAxisLabelSize = computed(() => (deviceContext.isMobileViewport ? 8 : 10))
+const gridMargin = computed(() => ({
+  left: deviceContext.isMobileViewport ? 5 : 40,
+  right: deviceContext.isMobileViewport ? 5 : 20,
+}))
 
 function shortName(name) {
   const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
@@ -68,7 +72,7 @@ const doubleBarOption = computed(() => {
       },
     },
     legend: { data: ['Offered', 'Selected'], textStyle: { color: tokens.value['--color-text-secondary'] } },
-    grid: { left: 40, right: 20, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
@@ -97,7 +101,7 @@ const rateOption = computed(() => {
         return `<b>${full}</b><br/>Selection rate: ${params[0].value}%<br/>(${c.selected}/${c.offered})`
       },
     },
-    grid: { left: 40, right: 20, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
@@ -187,7 +191,7 @@ const heatmapOption = computed(() => {
         return `<b>${shortName(a)} vs ${shortName(b)}</b><br/>${m.wins}/${m.total} (${val}%)`
       },
     },
-    grid: { left: 10, right: 20, top: 10, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, top: 10, bottom: 80, containLabel: true },
     xAxis: {
       type: 'category',
       data: short,

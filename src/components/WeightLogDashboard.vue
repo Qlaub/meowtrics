@@ -3,15 +3,21 @@ import { computed } from 'vue'
 import EChart from './EChart.vue'
 import { dailyAverages, weeklyChanges } from '@/data/weightLog.js'
 import { useChartTheme } from '@/composables/useChartTheme.js'
+import { useDeviceContextStore } from '@/stores/deviceContext.js'
 
 const props = defineProps({
   rows: { type: Array, required: true },
 })
 
 const { tokens, tooltipStyle, axisStyle } = useChartTheme()
+const deviceContext = useDeviceContextStore()
 
 const daily = computed(() => dailyAverages(props.rows))
 const weekly = computed(() => weeklyChanges(daily.value))
+const gridMargin = computed(() => ({
+  left: deviceContext.isMobileViewport ? 5 : 50,
+  right: deviceContext.isMobileViewport ? 5 : 20,
+}))
 
 const lineOption = computed(() => {
   return {
@@ -23,7 +29,7 @@ const lineOption = computed(() => {
         return `${p.name}<br/>Weight: ${p.value} lbs`
       },
     },
-    grid: { left: 50, right: 20, bottom: 60, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 60, containLabel: true },
     xAxis: {
       type: 'category',
       data: daily.value.map((d) => d.dateKey),
@@ -61,7 +67,7 @@ const weeklyOption = computed(() => {
         return `Week of ${p.name}<br/>Change: ${sign}${p.value} lbs`
       },
     },
-    grid: { left: 50, right: 20, bottom: 60, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 60, containLabel: true },
     xAxis: {
       type: 'category',
       data: weekly.value.map((w) => w.dateKey),
