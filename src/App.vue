@@ -2,8 +2,11 @@
 import { ref, watch } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { loadManifest, groupBycat } from '@/data/manifest.js'
+import { useDeviceContextStore } from '@/stores/deviceContext.js'
 
 const route = useRoute()
+const deviceContext = useDeviceContextStore()
+deviceContext.init()
 const menuOpen = ref(false)
 const manifest = ref([])
 const error = ref(null)
