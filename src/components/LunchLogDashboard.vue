@@ -35,7 +35,7 @@ function contrastTextColor(bgRgb) {
 
 const agg = computed(() => aggregateLunchLog(props.rows))
 const h2h = computed(() => buildHeadToHead(props.rows))
-const axisLabelSize = computed(() => (deviceContext.isMobileViewport ? 8 : 10))
+const barAxisLabelSize = computed(() => (deviceContext.isMobileViewport ? 8 : 10))
 
 function shortName(name) {
   const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
@@ -72,7 +72,7 @@ const doubleBarOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: 45, fontSize: axisLabelSize.value },
+      axisLabel: { rotate: 45, fontSize: barAxisLabelSize.value },
       ...axisStyle.value,
     },
     yAxis: { type: 'value', ...axisStyle.value },
@@ -101,7 +101,7 @@ const rateOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: 45, fontSize: axisLabelSize.value },
+      axisLabel: { rotate: 45, fontSize: barAxisLabelSize.value },
       ...axisStyle.value,
     },
     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: tokens.value['--color-text-secondary'] }, ...axisStyle.value },
@@ -191,14 +191,14 @@ const heatmapOption = computed(() => {
     xAxis: {
       type: 'category',
       data: short,
-      axisLabel: { rotate: 45, fontSize: axisLabelSize.value, color: tokens.value['--color-text-secondary'] },
+      axisLabel: { rotate: 45, fontSize: 10, color: tokens.value['--color-text-secondary'] },
       axisLine: { lineStyle: { color: tokens.value['--color-chart-axis'] } },
       position: 'bottom',
     },
     yAxis: {
       type: 'category',
       data: short,
-      axisLabel: { fontSize: axisLabelSize.value, color: tokens.value['--color-text-secondary'] },
+      axisLabel: { fontSize: 10, color: tokens.value['--color-text-secondary'] },
       axisLine: { lineStyle: { color: tokens.value['--color-chart-axis'] } },
     },
     visualMap: {
