@@ -18,6 +18,8 @@ const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 50,
   right: deviceContext.isMobileViewport ? 5 : 20,
 }))
+const axisLabelSize = computed(() => (deviceContext.isMobileViewport ? 7 : 10))
+const axisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
 
 const lineOption = computed(() => {
   return {
@@ -33,7 +35,7 @@ const lineOption = computed(() => {
     xAxis: {
       type: 'category',
       data: daily.value.map((d) => d.dateKey),
-      axisLabel: { rotate: 45, fontSize: 10 },
+      axisLabel: { rotate: axisRotate.value, fontSize: axisLabelSize.value, interval: 0 },
       ...axisStyle.value,
     },
     yAxis: {
@@ -71,7 +73,7 @@ const weeklyOption = computed(() => {
     xAxis: {
       type: 'category',
       data: weekly.value.map((w) => w.dateKey),
-      axisLabel: { rotate: 45, fontSize: 10 },
+      axisLabel: { rotate: axisRotate.value, fontSize: axisLabelSize.value, interval: 0 },
       ...axisStyle.value,
     },
     yAxis: {

@@ -35,7 +35,8 @@ function contrastTextColor(bgRgb) {
 
 const agg = computed(() => aggregateLunchLog(props.rows))
 const h2h = computed(() => buildHeadToHead(props.rows))
-const barAxisLabelSize = computed(() => (deviceContext.isMobileViewport ? 8 : 10))
+const barAxisLabelSize = computed(() => (deviceContext.isMobileViewport ? 7 : 10))
+const barAxisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
 const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 40,
   right: deviceContext.isMobileViewport ? 5 : 20,
@@ -76,7 +77,7 @@ const doubleBarOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: 45, fontSize: barAxisLabelSize.value },
+      axisLabel: { rotate: barAxisRotate.value, fontSize: barAxisLabelSize.value, interval: 0 },
       ...axisStyle.value,
     },
     yAxis: { type: 'value', ...axisStyle.value },
@@ -105,7 +106,7 @@ const rateOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: 45, fontSize: barAxisLabelSize.value },
+      axisLabel: { rotate: barAxisRotate.value, fontSize: barAxisLabelSize.value, interval: 0 },
       ...axisStyle.value,
     },
     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: tokens.value['--color-text-secondary'] }, ...axisStyle.value },
