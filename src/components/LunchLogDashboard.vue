@@ -77,8 +77,14 @@ const doubleBarOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: barAxisRotate.value, fontSize: barAxisLabelSize.value, interval: 0 },
-      ...axisStyle.value,
+      axisLine: axisStyle.value.axisLine,
+      splitLine: axisStyle.value.splitLine,
+      axisLabel: {
+        rotate: barAxisRotate.value,
+        fontSize: barAxisLabelSize.value,
+        interval: 0,
+        color: tokens.value['--color-text-secondary'],
+      },
     },
     yAxis: { type: 'value', ...axisStyle.value },
     series: [
@@ -106,8 +112,14 @@ const rateOption = computed(() => {
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { rotate: barAxisRotate.value, fontSize: barAxisLabelSize.value, interval: 0 },
-      ...axisStyle.value,
+      axisLine: axisStyle.value.axisLine,
+      splitLine: axisStyle.value.splitLine,
+      axisLabel: {
+        rotate: barAxisRotate.value,
+        fontSize: barAxisLabelSize.value,
+        interval: 0,
+        color: tokens.value['--color-text-secondary'],
+      },
     },
     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: tokens.value['--color-text-secondary'] }, ...axisStyle.value },
     series: [

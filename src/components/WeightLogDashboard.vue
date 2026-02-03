@@ -35,8 +35,14 @@ const lineOption = computed(() => {
     xAxis: {
       type: 'category',
       data: daily.value.map((d) => d.dateKey),
-      axisLabel: { rotate: axisRotate.value, fontSize: axisLabelSize.value, interval: 0 },
-      ...axisStyle.value,
+      axisLine: axisStyle.value.axisLine,
+      splitLine: axisStyle.value.splitLine,
+      axisLabel: {
+        rotate: axisRotate.value,
+        fontSize: axisLabelSize.value,
+        interval: 0,
+        color: tokens.value['--color-text-secondary'],
+      },
     },
     yAxis: {
       type: 'value',
@@ -73,8 +79,14 @@ const weeklyOption = computed(() => {
     xAxis: {
       type: 'category',
       data: weekly.value.map((w) => w.dateKey),
-      axisLabel: { rotate: axisRotate.value, fontSize: axisLabelSize.value, interval: 0 },
-      ...axisStyle.value,
+      axisLine: axisStyle.value.axisLine,
+      splitLine: axisStyle.value.splitLine,
+      axisLabel: {
+        rotate: axisRotate.value,
+        fontSize: axisLabelSize.value,
+        interval: 0,
+        color: tokens.value['--color-text-secondary'],
+      },
     },
     yAxis: {
       type: 'value',
