@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import EChart from './EChart.vue'
 import { aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog.js'
 import { useChartTheme } from '@/composables/useChartTheme.js'
+import { useDeviceContextStore } from '@/stores/deviceContext.js'
 
 const props = defineProps({
   rows: { type: Array, required: true },
 })
 
 const { tokens, seriesColors, tooltipStyle, axisStyle } = useChartTheme()
+const deviceContext = useDeviceContextStore()
 
 function parseRgb(str) {
   const m = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
@@ -38,7 +40,12 @@ function shortName(name) {
   const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
   if (match) {
     const [, type, food] = match
-    if (food === 'White Meat Chicken') return `Chicken ${type}`
+    if (food === 'White Meat Chicken') {
+      if (deviceContext.isMobileViewport) {
+        return type === 'Pate' ? 'Chicken (p)' : 'Chicken (g)'
+      }
+      return `Chicken ${type}`
+    }
     if (food === 'Trout and Tuna') return 'Trout'
     if (food === 'Wild Alaskan Salmon') return 'Salmon'
     return food
