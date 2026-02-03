@@ -63,7 +63,7 @@ const grouped = () => groupBycat(manifest.value)
 .cat-group h2 {
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
-  color: var(--color-text-muted);
+  color: var(--color-accent-secondary);
 }
 
 .card-grid {
@@ -75,19 +75,19 @@ const grouped = () => groupBycat(manifest.value)
 .dataset-card {
   display: block;
   padding: 1.25rem;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-surface-card);
   border-radius: 10px;
   text-decoration: none;
-  color: var(--color-text);
+  color: var(--color-on-surface-card);
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
 }
 
 .dataset-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   text-decoration: none;
 }
 
@@ -99,7 +99,8 @@ const grouped = () => groupBycat(manifest.value)
 .card-desc {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  color: var(--color-on-surface-card);
+  opacity: 0.6;
 }
 
 .loading {
@@ -116,8 +117,8 @@ const grouped = () => groupBycat(manifest.value)
 .error button {
   margin-top: 1rem;
   padding: 0.5rem 1.5rem;
-  background: var(--color-primary);
-  color: white;
+  background: var(--color-accent-primary);
+  color: var(--color-on-accent);
   border: none;
   border-radius: 6px;
   cursor: pointer;

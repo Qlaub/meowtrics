@@ -2,10 +2,13 @@
 import { computed } from 'vue'
 import EChart from './EChart.vue'
 import { dailyAverages, weeklyChanges } from '@/data/weightLog.js'
+import { useChartTheme } from '@/composables/useChartTheme.js'
 
 const props = defineProps({
   rows: { type: Array, required: true },
 })
+
+const { tokens, tooltipStyle, axisStyle } = useChartTheme()
 
 const daily = computed(() => dailyAverages(props.rows))
 const weekly = computed(() => weeklyChanges(daily.value))
@@ -14,6 +17,7 @@ const lineOption = computed(() => {
   return {
     tooltip: {
       trigger: 'axis',
+      ...tooltipStyle.value,
       formatter(params) {
         const p = params[0]
         return `${p.name}<br/>Weight: ${p.value} lbs`
@@ -24,11 +28,14 @@ const lineOption = computed(() => {
       type: 'category',
       data: daily.value.map((d) => d.dateKey),
       axisLabel: { rotate: 45, fontSize: 10 },
+      ...axisStyle.value,
     },
     yAxis: {
       type: 'value',
       name: 'lbs',
+      nameTextStyle: { color: tokens.value['--color-text-secondary'] },
       scale: true,
+      ...axisStyle.value,
     },
     series: [
       {
@@ -37,7 +44,7 @@ const lineOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        itemStyle: { color: '#4a90d9' },
+        itemStyle: { color: tokens.value['--color-chart-series-3'] },
       },
     ],
   }
@@ -47,6 +54,7 @@ const weeklyOption = computed(() => {
   return {
     tooltip: {
       trigger: 'axis',
+      ...tooltipStyle.value,
       formatter(params) {
         const p = params[0]
         const sign = p.value >= 0 ? '+' : ''
@@ -58,17 +66,24 @@ const weeklyOption = computed(() => {
       type: 'category',
       data: weekly.value.map((w) => w.dateKey),
       axisLabel: { rotate: 45, fontSize: 10 },
+      ...axisStyle.value,
     },
     yAxis: {
       type: 'value',
       name: 'lbs',
+      nameTextStyle: { color: tokens.value['--color-text-secondary'] },
+      ...axisStyle.value,
     },
     series: [
       {
         type: 'bar',
         data: weekly.value.map((w) => ({
           value: w.change,
-          itemStyle: { color: w.change >= 0 ? '#27ae60' : '#e74c3c' },
+          itemStyle: {
+            color: w.change >= 0
+              ? tokens.value['--color-chart-series-2']
+              : tokens.value['--color-chart-series-7'],
+          },
         })),
       },
     ],
@@ -100,5 +115,6 @@ const weeklyOption = computed(() => {
 .chart-section h3 {
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
+  color: var(--color-accent-secondary);
 }
 </style>

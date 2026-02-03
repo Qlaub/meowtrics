@@ -129,18 +129,18 @@ const stats = computed(() => {
 
 .range-filter button {
   padding: 0.4rem 1rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 6px;
-  background: var(--color-background);
+  background: var(--color-bg-primary);
   cursor: pointer;
   font-size: 0.85rem;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 .range-filter button.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
+  background: var(--color-accent-primary);
+  color: var(--color-on-accent);
+  border-color: var(--color-accent-primary);
 }
 
 .loading,
@@ -158,8 +158,8 @@ const stats = computed(() => {
 .error button {
   margin-top: 1rem;
   padding: 0.5rem 1.5rem;
-  background: var(--color-primary);
-  color: white;
+  background: var(--color-accent-primary);
+  color: var(--color-on-accent);
   border: none;
   border-radius: 6px;
   cursor: pointer;

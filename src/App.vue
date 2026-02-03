@@ -3,10 +3,14 @@ import { ref, watch } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { loadManifest, groupBycat } from '@/data/manifest.js'
 import { useDeviceContextStore } from '@/stores/deviceContext.js'
+import { useThemeStore } from '@/stores/themeStore.js'
+import ThemeSwitch from '@/components/ThemeSwitch.vue'
 
 const route = useRoute()
 const deviceContext = useDeviceContextStore()
 deviceContext.init()
+const themeStore = useThemeStore()
+themeStore.init()
 const menuOpen = ref(false)
 const manifest = ref([])
 const error = ref(null)
@@ -37,6 +41,7 @@ watch(
       <span :class="{ open: menuOpen }"></span>
     </button>
     <RouterLink to="/" class="app-title">Meowtrics</RouterLink>
+    <ThemeSwitch />
   </header>
 
   <nav v-if="menuOpen" class="nav-menu">
@@ -65,14 +70,14 @@ watch(
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 0;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-accent-secondary);
   margin-bottom: 1.5rem;
 }
 
 .app-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-heading);
+  color: var(--color-text-primary);
   text-decoration: none;
 }
 
@@ -94,7 +99,7 @@ watch(
   display: block;
   width: 1.25rem;
   height: 2px;
-  background: var(--color-text);
+  background: var(--color-text-primary);
   transition: transform 0.2s;
   position: absolute;
 }
@@ -127,8 +132,8 @@ watch(
 .nav-menu {
   display: flex;
   flex-direction: column;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   padding: 0.5rem 0;
   margin-bottom: 1.5rem;
@@ -136,13 +141,13 @@ watch(
 
 .nav-link {
   padding: 0.5rem 1rem;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   text-decoration: none;
   font-weight: 500;
 }
 
 .nav-link:hover {
-  background: var(--color-primary-soft);
+  background: var(--color-surface-2);
   text-decoration: none;
 }
 
@@ -157,6 +162,6 @@ watch(
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-muted);
+  color: var(--color-accent-secondary);
 }
 </style>
