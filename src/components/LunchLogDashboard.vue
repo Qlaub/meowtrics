@@ -52,6 +52,12 @@ function shortName(name) {
       }
       return `Chicken ${type}`
     }
+    if (food === 'Beef') {
+      if (deviceContext.isMobileViewport) {
+        return type === 'Pate' ? 'Beef (p)' : 'Beef (g)'
+      }
+      return `Beef ${type}`
+    }
     if (food === 'Trout and Tuna') return 'Trout'
     if (food === 'Wild Alaskan Salmon') return 'Salmon'
     return food
