@@ -45,7 +45,7 @@ watch(
   </header>
 
   <nav v-if="menuOpen" class="nav-menu" data-testid="nav-menu">
-    <RouterLink to="/" class="nav-link">Home</RouterLink>
+    <RouterLink to="/" class="nav-link" @click="menuOpen = false">Home</RouterLink>
     <template v-for="(datasets, cat) in grouped()" :key="cat">
       <div class="nav-group-label">{{ cat }}</div>
       <RouterLink
@@ -53,6 +53,7 @@ watch(
         :key="d.id"
         :to="{ name: 'dataset', params: { datasetId: d.id } }"
         class="nav-link nav-link--indent"
+        @click="menuOpen = false"
       >
         {{ d.title }}
       </RouterLink>
