@@ -1,6 +1,6 @@
-# Meowtrics
+# [Meowtrics - click to visit](https://qlaub.github.io/meowtrics/#/)
 
-A simple web app for tracking and visualizing data about my cats — weight over time, meal preferences, and potentially more in the future.
+A simple web app for tracking and visualizing data about my cats - weight over time, meal preferences, and potentially more in the future.
 
 Built with Vue 3 and Apache ECharts. Hosted on GitHub Pages.
 
@@ -10,8 +10,8 @@ Data is collected via iOS Shortcuts on my phone. Each shortcut appends a row to 
 
 ## What's being tracked
 
-- **Weight logs** — Periodic weight measurements for each cat.
-- **Lunch log (Cummings)** — At lunchtime, Cummings is presented with two cans of food and whichever one he rubs up against is the winner. The bowl and utensil are readied beforehand so the chosen can is opened and served immediately in front of him — reinforcing the connection between his choice and the meal.
+- **Weight logs** - Periodic weight measurements for each cat.
+- **Lunch log (Cummings)** - At lunchtime, Cummings is presented with two cans of food and whichever one he rubs up against is the winner. The bowl and utensil are readied beforehand so the chosen can is opened and served immediately in front of him - reinforcing the connection between his choice and the meal.
 
 ## Development
 
