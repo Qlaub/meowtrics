@@ -181,6 +181,71 @@ describe('LunchLogDashboard shortName behavior', () => {
   });
 });
 
+describe('LunchLogDashboard pie chart label visibility', () => {
+  it('pie chart label has overflow set to break on desktop', async () => {
+    const wrapper = mountDashboard(sampleRows, 1024);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].label.overflow).toBe('break');
+  });
+
+  it('pie chart label has overflow set to break on mobile', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].label.overflow).toBe('break');
+  });
+
+  it('pie chart uses smaller radius on mobile', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].radius).toEqual(['20%', '50%']);
+  });
+
+  it('pie chart uses standard radius on desktop', async () => {
+    const wrapper = mountDashboard(sampleRows, 1024);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].radius).toEqual(['30%', '65%']);
+  });
+
+  it('pie chart label font size is smaller on mobile', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].label.fontSize).toBe(9);
+  });
+
+  it('pie chart label font size is standard on desktop', async () => {
+    const wrapper = mountDashboard(sampleRows, 1024);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].label.fontSize).toBe(11);
+  });
+
+  it('pie chart label has minMargin set', async () => {
+    const wrapper = mountDashboard(sampleRows, 1024);
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[2].props('option');
+    expect(option.series[0].label.minMargin).toBeGreaterThan(0);
+  });
+});
+
 describe('LunchLogDashboard edge cases', () => {
   it('renders with empty rows without errors', () => {
     const wrapper = mountDashboard([]);

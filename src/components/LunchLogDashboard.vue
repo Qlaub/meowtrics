@@ -41,6 +41,10 @@ const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 40,
   right: deviceContext.isMobileViewport ? 5 : 20,
 }))
+const pieRadius = computed(() =>
+  deviceContext.isMobileViewport ? ['20%', '50%'] : ['30%', '65%'],
+)
+const pieLabelFontSize = computed(() => (deviceContext.isMobileViewport ? 9 : 11))
 
 function shortName(name) {
   const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
@@ -149,11 +153,16 @@ const pieOption = computed(() => {
     series: [
       {
         type: 'pie',
-        radius: ['30%', '65%'],
+        radius: pieRadius.value,
         data: agg.value
           .filter((c) => c.selected > 0)
           .map((c) => ({ name: shortName(c.name), value: c.selected })),
-        label: { fontSize: 11, color: tokens.value['--color-text-secondary'] },
+        label: {
+          fontSize: pieLabelFontSize.value,
+          color: tokens.value['--color-text-secondary'],
+          overflow: 'break',
+          minMargin: 5,
+        },
       },
     ],
   }

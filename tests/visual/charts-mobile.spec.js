@@ -50,6 +50,18 @@ test.describe('Mobile Chart Rendering', () => {
     });
   });
 
+  test('pie chart labels are visible on mobile', async ({ page }) => {
+    await page.goto('/#/datasets/cummings-lunch-log');
+
+    const pieChart = page.locator('[data-testid="pie-chart"]');
+    await pieChart.waitFor();
+    await waitForChartsRendered(pieChart);
+
+    await expect(pieChart).toHaveScreenshot('pie-chart-mobile.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
   test('heatmap labels are readable', async ({ page }) => {
     await page.goto('/#/datasets/cummings-lunch-log');
 
