@@ -18,7 +18,7 @@ export function aggregateLunchLog(rows) {
       if (!cans[c]) cans[c] = { name: c, offered: 0, selected: 0 }
       cans[c].offered++
     }
-    cans[r.winner].selected++
+    if (cans[r.winner]) cans[r.winner].selected++
   }
 
   return Object.values(cans).sort(

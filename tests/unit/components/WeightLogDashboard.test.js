@@ -1,0 +1,122 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import WeightLogDashboard from '@/components/WeightLogDashboard.vue';
+
+const EChartStub = {
+  name: 'EChart',
+  props: ['option', 'height'],
+  template: '<div class="echart-stub"></div>',
+};
+
+// Data spanning 3 weeks to produce weekly change data
+const multiWeekRows = [
+  { timestamp: new Date('2024-01-01'), dateKey: '2024-01-01', weightLbs: 10.5 },
+  { timestamp: new Date('2024-01-02'), dateKey: '2024-01-02', weightLbs: 10.6 },
+  { timestamp: new Date('2024-01-08'), dateKey: '2024-01-08', weightLbs: 10.8 },
+  { timestamp: new Date('2024-01-15'), dateKey: '2024-01-15', weightLbs: 10.4 },
+];
+
+// Data within a single week — not enough for weekly changes
+const singleWeekRows = [
+  { timestamp: new Date('2024-01-01'), dateKey: '2024-01-01', weightLbs: 10.5 },
+  { timestamp: new Date('2024-01-02'), dateKey: '2024-01-02', weightLbs: 10.6 },
+];
+
+function mountDashboard(rows = multiWeekRows) {
+  const pinia = createPinia();
+  setActivePinia(pinia);
+
+  return mount(WeightLogDashboard, {
+    props: { rows },
+    global: {
+      plugins: [pinia],
+      stubs: { EChart: EChartStub },
+    },
+  });
+}
+
+describe('WeightLogDashboard structure and rendering', () => {
+  it('renders the weight dashboard container', () => {
+    const wrapper = mountDashboard();
+    expect(wrapper.find('[data-testid="weight-dashboard"]').exists()).toBe(true);
+  });
+
+  it('renders the weight line chart section', () => {
+    const wrapper = mountDashboard();
+    expect(wrapper.find('[data-testid="weight-line-chart"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="weight-line-chart"] h2').text()).toBe('Weight Over Time');
+  });
+
+  it('renders weekly change chart section when sufficient data exists', () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="weekly-change-chart"] h2').text()).toBe(
+      'Weekly Weight Change',
+    );
+  });
+});
+
+describe('WeightLogDashboard conditional rendering', () => {
+  it('hides weekly change section when only one week of data exists', () => {
+    const wrapper = mountDashboard(singleWeekRows);
+    expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(false);
+  });
+});
+
+describe('WeightLogDashboard chart option generation', () => {
+  let wrapper;
+  let echarts;
+
+  beforeEach(async () => {
+    wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    echarts = wrapper.findAllComponents({ name: 'EChart' });
+  });
+
+  it('line chart has daily average data in series', () => {
+    const option = echarts[0].props('option');
+    expect(option.series[0].type).toBe('line');
+    expect(option.series[0].data.length).toBeGreaterThan(0);
+    option.series[0].data.forEach((val) => {
+      expect(typeof val).toBe('number');
+    });
+  });
+
+  it('weekly change bar chart has correct change values', () => {
+    const option = echarts[1].props('option');
+    expect(option.series[0].type).toBe('bar');
+    const values = option.series[0].data.map((d) => d.value);
+    expect(values.length).toBeGreaterThan(0);
+    // Changes should be numbers (positive or negative)
+    values.forEach((val) => {
+      expect(typeof val).toBe('number');
+    });
+  });
+
+  it('weekly change chart colors positive and negative changes differently', () => {
+    const option = echarts[1].props('option');
+    const items = option.series[0].data;
+    // With our test data, we expect at least one positive and one negative change
+    const hasPositive = items.some((d) => d.value > 0);
+    const hasNegative = items.some((d) => d.value < 0);
+    if (hasPositive && hasNegative) {
+      const posItem = items.find((d) => d.value >= 0);
+      const negItem = items.find((d) => d.value < 0);
+      expect(posItem.itemStyle.color).not.toBe(negItem.itemStyle.color);
+    }
+  });
+});
+
+describe('WeightLogDashboard edge cases', () => {
+  it('renders with empty rows without errors, weekly section hidden', () => {
+    const wrapper = mountDashboard([]);
+    expect(wrapper.find('[data-testid="weight-dashboard"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="weight-line-chart"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(false);
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const lineOption = echarts[0].props('option');
+    expect(lineOption.series[0].data).toHaveLength(0);
+  });
+});

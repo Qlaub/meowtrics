@@ -48,4 +48,46 @@ describe('parseCsv', () => {
     expect(result[0]).toEqual({ a: '1', b: '2', c: '' });
     expect(result[1]).toEqual({ a: '3', b: '4', c: '5' });
   });
+
+  it('ignores extra columns beyond headers', () => {
+    const csv = `a,b
+1,2,3,4`;
+
+    const result = parseCsv(csv);
+
+    expect(result[0]).toEqual({ a: '1', b: '2' });
+  });
+
+  it('parses single-column CSV', () => {
+    const csv = `name
+Alice
+Bob`;
+
+    const result = parseCsv(csv);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({ name: 'Alice' });
+    expect(result[1]).toEqual({ name: 'Bob' });
+  });
+
+  it('preserves unicode and special characters', () => {
+    const csv = `name,food
+Señor,Pâté
+Kitty,Tuna 🐟`;
+
+    const result = parseCsv(csv);
+
+    expect(result[0]).toEqual({ name: 'Señor', food: 'Pâté' });
+    expect(result[1]).toEqual({ name: 'Kitty', food: 'Tuna 🐟' });
+  });
+
+  it('handles rows with only empty values', () => {
+    const csv = `a,b,c
+,,`;
+
+    const result = parseCsv(csv);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({ a: '', b: '', c: '' });
+  });
 });

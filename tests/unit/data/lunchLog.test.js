@@ -21,6 +21,19 @@ describe('normalizeLunchLog', () => {
     expect(result[0].choice2).toBe('Food B');
     expect(result[0].winner).toBe('Food A');
   });
+
+  it('preserves empty string fields without crashing', () => {
+    const rows = [
+      { timestamp: '2026-01-25T12:00:00', choice1: '', choice2: '', winner: '' },
+    ];
+
+    const result = normalizeLunchLog(rows);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].choice1).toBe('');
+    expect(result[0].choice2).toBe('');
+    expect(result[0].winner).toBe('');
+  });
 });
 
 describe('aggregateLunchLog', () => {
@@ -62,6 +75,41 @@ describe('aggregateLunchLog', () => {
   it('returns empty array for empty input', () => {
     expect(aggregateLunchLog([])).toEqual([]);
   });
+
+  it('does not crash when winner does not match either choice', () => {
+    const rows = [
+      { choice1: 'Food A', choice2: 'Food B', winner: 'Food Z' },
+    ];
+
+    const result = aggregateLunchLog(rows);
+
+    const foodA = result.find((c) => c.name === 'Food A');
+    const foodB = result.find((c) => c.name === 'Food B');
+
+    expect(foodA.offered).toBe(1);
+    expect(foodA.selected).toBe(0);
+    expect(foodB.offered).toBe(1);
+    expect(foodB.selected).toBe(0);
+    expect(result.find((c) => c.name === 'Food Z')).toBeUndefined();
+  });
+
+  it('accumulates counts correctly with duplicate entries', () => {
+    const rows = [
+      { choice1: 'Food A', choice2: 'Food B', winner: 'Food A' },
+      { choice1: 'Food A', choice2: 'Food B', winner: 'Food A' },
+      { choice1: 'Food A', choice2: 'Food B', winner: 'Food A' },
+    ];
+
+    const result = aggregateLunchLog(rows);
+
+    const foodA = result.find((c) => c.name === 'Food A');
+    expect(foodA.offered).toBe(3);
+    expect(foodA.selected).toBe(3);
+
+    const foodB = result.find((c) => c.name === 'Food B');
+    expect(foodB.offered).toBe(3);
+    expect(foodB.selected).toBe(0);
+  });
 });
 
 describe('buildHeadToHead', () => {
@@ -95,5 +143,29 @@ describe('buildHeadToHead', () => {
     expect(names).toEqual(['X', 'Y']);
     expect(matchups['X']['Y']).toEqual({ wins: 1, total: 1 });
     expect(matchups['Y']['X']).toEqual({ wins: 0, total: 1 });
+  });
+
+  it('returns empty names and matchups for empty input', () => {
+    const { names, matchups } = buildHeadToHead([]);
+
+    expect(names).toEqual([]);
+    expect(matchups).toEqual({});
+  });
+
+  it('tracks all pairs in three-way matchups', () => {
+    const rows = [
+      { choice1: 'A', choice2: 'B', winner: 'A' },
+      { choice1: 'B', choice2: 'C', winner: 'C' },
+      { choice1: 'A', choice2: 'C', winner: 'A' },
+    ];
+
+    const { names, matchups } = buildHeadToHead(rows);
+
+    expect(names).toEqual(['A', 'B', 'C']);
+    expect(matchups['A']['B']).toEqual({ wins: 1, total: 1 });
+    expect(matchups['B']['C']).toEqual({ wins: 0, total: 1 });
+    expect(matchups['C']['B']).toEqual({ wins: 1, total: 1 });
+    expect(matchups['A']['C']).toEqual({ wins: 1, total: 1 });
+    expect(matchups['C']['A']).toEqual({ wins: 0, total: 1 });
   });
 });
