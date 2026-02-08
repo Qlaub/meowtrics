@@ -36,5 +36,13 @@ upcoming
 # Vitest
 __screenshots__/
 
+# Playwright
+playwright-report/
+test-results/
+*-snapshots/
+
 # Vite
 *.timestamp-*-*.mjs
+
+# Claude Code
+.claude/settings.local.json

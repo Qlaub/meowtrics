@@ -263,24 +263,24 @@ const heatmapOption = computed(() => {
 </script>
 
 <template>
-  <div class="dashboard">
-    <section class="chart-section">
-      <h3>Offered vs Selected</h3>
+  <div class="dashboard" data-testid="lunch-dashboard">
+    <section class="chart-section" data-testid="offered-selected-chart" aria-label="Offered vs Selected chart">
+      <h2>Offered vs Selected</h2>
       <EChart :option="doubleBarOption" />
     </section>
 
-    <section class="chart-section">
-      <h3>Selection Rate</h3>
+    <section class="chart-section" data-testid="selection-rate-chart" aria-label="Selection Rate chart">
+      <h2>Selection Rate</h2>
       <EChart :option="rateOption" />
     </section>
 
-    <section class="chart-section">
-      <h3>Selection Share</h3>
+    <section class="chart-section" data-testid="pie-chart" aria-label="Selection Share chart">
+      <h2>Selection Share</h2>
       <EChart :option="pieOption" />
     </section>
 
-    <section class="chart-section">
-      <h3>Head-to-Head</h3>
+    <section class="chart-section" data-testid="heatmap-chart" aria-label="Head-to-Head chart">
+      <h2>Head-to-Head</h2>
       <EChart :option="heatmapOption" :height="Math.max(300, h2h.names.length * 50) + 'px'" />
     </section>
   </div>
@@ -293,7 +293,7 @@ const heatmapOption = computed(() => {
   gap: 2rem;
 }
 
-.chart-section h3 {
+.chart-section h2 {
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
   color: var(--color-accent-secondary);

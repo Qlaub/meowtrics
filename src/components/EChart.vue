@@ -9,9 +9,13 @@ const props = defineProps({
 
 const el = ref(null)
 const chart = shallowRef(null)
+const rendered = ref(false)
 
 onMounted(() => {
   chart.value = echarts.init(el.value)
+  chart.value.on('finished', () => {
+    rendered.value = true
+  })
   chart.value.setOption(props.option)
   window.addEventListener('resize', handleResize)
 })
@@ -24,6 +28,7 @@ onUnmounted(() => {
 watch(
   () => props.option,
   (opt) => {
+    rendered.value = false
     chart.value?.setOption(opt, true)
   },
   { deep: true },
@@ -35,5 +40,5 @@ function handleResize() {
 </script>
 
 <template>
-  <div ref="el" :style="{ width: '100%', height }"></div>
+  <div ref="el" :style="{ width: '100%', height }" :data-rendered="String(rendered)"></div>
 </template>

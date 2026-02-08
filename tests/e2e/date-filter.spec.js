@@ -32,7 +32,7 @@ test.describe('Date Range Filter', () => {
     await filter30.click();
 
     // Scroll or interact with page
-    await page.mouse.wheel(0, 200);
+    await page.evaluate(() => window.scrollBy(0, 200));
 
     // Filter should still be selected
     await expect(filter30).toHaveClass(/active|selected/);

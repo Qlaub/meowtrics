@@ -112,14 +112,14 @@ const weeklyOption = computed(() => {
 </script>
 
 <template>
-  <div class="dashboard">
-    <section class="chart-section">
-      <h3>Weight Over Time</h3>
+  <div class="dashboard" data-testid="weight-dashboard">
+    <section class="chart-section" data-testid="weight-line-chart" aria-label="Weight Over Time chart">
+      <h2>Weight Over Time</h2>
       <EChart :option="lineOption" />
     </section>
 
-    <section v-if="weekly.length > 0" class="chart-section">
-      <h3>Weekly Weight Change</h3>
+    <section v-if="weekly.length > 0" class="chart-section" data-testid="weekly-change-chart" aria-label="Weekly Weight Change chart">
+      <h2>Weekly Weight Change</h2>
       <EChart :option="weeklyOption" />
     </section>
   </div>
@@ -132,7 +132,7 @@ const weeklyOption = computed(() => {
   gap: 2rem;
 }
 
-.chart-section h3 {
+.chart-section h2 {
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
   color: var(--color-accent-secondary);

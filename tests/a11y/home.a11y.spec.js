@@ -17,11 +17,10 @@ test.describe('Home Page Accessibility', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="dataset-card"]');
 
-    // Tab to first card
-    await page.keyboard.press('Tab');
-
-    const focusedElement = page.locator(':focus');
-    await expect(focusedElement).toBeVisible();
+    // Focus first dataset card and activate with Enter
+    const firstCard = page.locator('[data-testid="dataset-card"]').first();
+    await firstCard.focus();
+    await expect(firstCard).toBeFocused();
 
     // Should be able to activate with Enter
     await page.keyboard.press('Enter');

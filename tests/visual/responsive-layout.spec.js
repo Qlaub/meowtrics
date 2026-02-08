@@ -15,13 +15,15 @@ test.describe('Responsive Layout', () => {
   test('header collapses on mobile', async ({ page, viewport }) => {
     await page.goto('/');
 
-    if (viewport.width < 768) {
-      // Mobile: hamburger menu should be visible
-      await expect(page.locator('[data-testid="menu-toggle"]')).toBeVisible();
-    } else {
-      // Desktop: navigation should be visible without toggle
-      await expect(page.locator('[data-testid="nav-menu"]')).toBeVisible();
-    }
+    // Hamburger menu toggle should be visible at all viewport sizes (mobile-first design)
+    await expect(page.locator('[data-testid="menu-toggle"]')).toBeVisible();
+
+    // Nav menu should be hidden until toggled
+    await expect(page.locator('[data-testid="nav-menu"]')).not.toBeVisible();
+
+    // Clicking toggle reveals nav menu
+    await page.locator('[data-testid="menu-toggle"]').click();
+    await expect(page.locator('[data-testid="nav-menu"]')).toBeVisible();
   });
 
   test('dataset cards reflow at breakpoints', async ({ page }) => {

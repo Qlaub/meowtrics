@@ -40,6 +40,7 @@ const grouped = () => groupBycat(manifest.value)
             :key="d.id"
             :to="{ name: 'dataset', params: { datasetId: d.id } }"
             class="dataset-card"
+            data-testid="dataset-card"
           >
             <div class="card-title">{{ d.title }}</div>
             <div v-if="d.description" class="card-desc">{{ d.description }}</div>
@@ -100,7 +101,7 @@ const grouped = () => groupBycat(manifest.value)
   margin-top: 0.5rem;
   font-size: 0.875rem;
   color: var(--color-on-surface-card);
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .loading {

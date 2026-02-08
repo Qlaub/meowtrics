@@ -75,11 +75,11 @@ const stats = computed(() => {
     <template v-else-if="dataset">
       <h1>{{ dataset.cat }} — {{ dataset.title }}</h1>
 
-      <div v-if="stats" class="stats">
+      <div v-if="stats" class="stats" data-testid="dataset-stats">
         {{ stats.count }} entries &middot; {{ stats.from }} – {{ stats.to }}
       </div>
 
-      <div class="range-filter">
+      <div class="range-filter" data-testid="date-filter">
         <button
           v-for="opt in [
             { value: '30', label: 'Last 30 days' },
@@ -88,6 +88,7 @@ const stats = computed(() => {
           ]"
           :key="opt.value"
           :class="{ active: range === opt.value }"
+          :data-testid="'filter-' + opt.value"
           @click="range = opt.value"
         >
           {{ opt.label }}

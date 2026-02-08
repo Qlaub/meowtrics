@@ -1,16 +1,25 @@
 import { test, expect } from '@playwright/test';
 
+async function waitForChartsRendered(locator) {
+  const charts = locator.locator('[data-rendered]');
+  const count = await charts.count();
+  for (let i = 0; i < count; i++) {
+    await expect(charts.nth(i)).toHaveAttribute('data-rendered', 'true');
+  }
+}
+
 // Only run on desktop projects
 test.describe('Desktop Chart Rendering', () => {
-  test.skip(({ browserName }) => ['Mobile Chrome', 'Mobile Safari'].includes(browserName));
+  test.skip(({ isMobile }) => isMobile);
 
   test('lunch dashboard renders correctly on desktop', async ({ page }) => {
     await page.goto('/#/datasets/cummings-lunch-log');
 
-    await page.waitForSelector('[data-testid="lunch-dashboard"]');
-    await page.waitForTimeout(1000);
+    const dashboard = page.locator('[data-testid="lunch-dashboard"]');
+    await dashboard.waitFor();
+    await waitForChartsRendered(dashboard);
 
-    await expect(page.locator('[data-testid="lunch-dashboard"]')).toHaveScreenshot(
+    await expect(dashboard).toHaveScreenshot(
       'lunch-dashboard-desktop.png',
       { maxDiffPixelRatio: 0.02 }
     );
@@ -19,10 +28,11 @@ test.describe('Desktop Chart Rendering', () => {
   test('weight dashboard renders correctly on desktop', async ({ page }) => {
     await page.goto('/#/datasets/cummings-weight-log');
 
-    await page.waitForSelector('[data-testid="weight-dashboard"]');
-    await page.waitForTimeout(1000);
+    const dashboard = page.locator('[data-testid="weight-dashboard"]');
+    await dashboard.waitFor();
+    await waitForChartsRendered(dashboard);
 
-    await expect(page.locator('[data-testid="weight-dashboard"]')).toHaveScreenshot(
+    await expect(dashboard).toHaveScreenshot(
       'weight-dashboard-desktop.png',
       { maxDiffPixelRatio: 0.02 }
     );
@@ -33,7 +43,7 @@ test.describe('Desktop Chart Rendering', () => {
 
     const pieChart = page.locator('[data-testid="pie-chart"]');
     await pieChart.waitFor();
-    await page.waitForTimeout(1000);
+    await waitForChartsRendered(pieChart);
 
     await expect(pieChart).toHaveScreenshot('pie-chart-desktop.png', {
       maxDiffPixelRatio: 0.02,
@@ -45,7 +55,7 @@ test.describe('Desktop Chart Rendering', () => {
 
     const lineChart = page.locator('[data-testid="weight-line-chart"]');
     await lineChart.waitFor();
-    await page.waitForTimeout(1000);
+    await waitForChartsRendered(lineChart);
 
     await expect(lineChart).toHaveScreenshot('line-chart-desktop.png', {
       maxDiffPixelRatio: 0.02,
