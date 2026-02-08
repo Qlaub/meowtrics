@@ -45,15 +45,35 @@ describe('WeightLogDashboard structure and rendering', () => {
   it('renders the weight line chart section', () => {
     const wrapper = mountDashboard();
     expect(wrapper.find('[data-testid="weight-line-chart"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="weight-line-chart"] h2').text()).toBe('Weight Over Time');
   });
 
   it('renders weekly change chart section when sufficient data exists', () => {
     const wrapper = mountDashboard(multiWeekRows);
     expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="weekly-change-chart"] h2').text()).toBe(
-      'Weekly Weight Change',
-    );
+  });
+
+  it('has no h2 title elements in the template', () => {
+    const wrapper = mountDashboard();
+    expect(wrapper.findAll('h2')).toHaveLength(0);
+  });
+
+  it('displays correct chart titles via ECharts title config', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    expect(echarts[0].props('option').title.text).toBe('Weight Over Time');
+    expect(echarts[1].props('option').title.text).toBe('Weekly Weight Change');
+  });
+
+  it('all chart titles are centered', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      expect(chart.props('option').title.left, `chart ${i} title should be centered`).toBe(
+        'center',
+      );
+    });
   });
 });
 

@@ -67,15 +67,43 @@ describe('LunchLogDashboard structure and rendering', () => {
     expect(wrapper.find('[data-testid="heatmap-chart"]').exists()).toBe(true);
   });
 
-  it('displays correct section titles', () => {
+  it('has no h2 title elements in the template', () => {
     const wrapper = mountDashboard();
-    const headings = wrapper.findAll('h2').map((h) => h.text());
-    expect(headings).toEqual([
+    expect(wrapper.findAll('h2')).toHaveLength(0);
+  });
+
+  it('displays correct chart titles via ECharts title config', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const titles = echarts.map((c) => c.props('option').title.text);
+    expect(titles).toEqual([
       'Offered vs Selected',
       'Selection Rate',
       'Selection Share',
       'Head-to-Head',
     ]);
+  });
+
+  it('all chart titles are centered', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      expect(chart.props('option').title.left, `chart ${i} title should be centered`).toBe(
+        'center',
+      );
+    });
+  });
+
+  it('chart titles use themed color from tokens', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      const titleStyle = chart.props('option').title.textStyle;
+      expect(titleStyle.color, `chart ${i} title should have themed color`).toBeTruthy();
+    });
   });
 });
 

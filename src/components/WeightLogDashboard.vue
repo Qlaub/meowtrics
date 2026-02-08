@@ -21,8 +21,15 @@ const gridMargin = computed(() => ({
 const axisLabelSize = computed(() => (deviceContext.isMobileViewport ? 7 : 10))
 const axisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
 
+const chartTitle = (text) => ({
+  text,
+  left: 'center',
+  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 16 },
+})
+
 const lineOption = computed(() => {
   return {
+    title: chartTitle('Weight Over Time'),
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
@@ -66,6 +73,7 @@ const lineOption = computed(() => {
 
 const weeklyOption = computed(() => {
   return {
+    title: chartTitle('Weekly Weight Change'),
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
@@ -114,12 +122,10 @@ const weeklyOption = computed(() => {
 <template>
   <div class="dashboard" data-testid="weight-dashboard">
     <section class="chart-section" data-testid="weight-line-chart" aria-label="Weight Over Time chart">
-      <h2>Weight Over Time</h2>
       <EChart :option="lineOption" />
     </section>
 
     <section v-if="weekly.length > 0" class="chart-section" data-testid="weekly-change-chart" aria-label="Weekly Weight Change chart">
-      <h2>Weekly Weight Change</h2>
       <EChart :option="weeklyOption" />
     </section>
   </div>
@@ -132,9 +138,4 @@ const weeklyOption = computed(() => {
   gap: 2rem;
 }
 
-.chart-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 0.75rem;
-  color: var(--color-accent-secondary);
-}
 </style>

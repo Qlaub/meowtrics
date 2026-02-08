@@ -69,9 +69,16 @@ function shortName(name) {
   return name
 }
 
+const chartTitle = (text) => ({
+  text,
+  left: 'center',
+  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 16 },
+})
+
 const doubleBarOption = computed(() => {
   const names = agg.value.map((c) => shortName(c.name))
   return {
+    title: chartTitle('Offered vs Selected'),
     color: seriesColors.value,
     tooltip: {
       trigger: 'axis',
@@ -108,6 +115,7 @@ const rateOption = computed(() => {
   const names = agg.value.map((c) => shortName(c.name))
   const rates = agg.value.map((c) => (c.offered ? +((c.selected / c.offered) * 100).toFixed(1) : 0))
   return {
+    title: chartTitle('Selection Rate'),
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
@@ -144,6 +152,7 @@ const rateOption = computed(() => {
 
 const pieOption = computed(() => {
   return {
+    title: chartTitle('Selection Share'),
     color: seriesColors.value,
     tooltip: {
       trigger: 'item',
@@ -208,6 +217,7 @@ const heatmapOption = computed(() => {
     }
   }
   return {
+    title: chartTitle('Head-to-Head'),
     tooltip: {
       ...tooltipStyle.value,
       formatter(params) {
@@ -274,22 +284,18 @@ const heatmapOption = computed(() => {
 <template>
   <div class="dashboard" data-testid="lunch-dashboard">
     <section class="chart-section" data-testid="offered-selected-chart" aria-label="Offered vs Selected chart">
-      <h2>Offered vs Selected</h2>
       <EChart :option="doubleBarOption" />
     </section>
 
     <section class="chart-section" data-testid="selection-rate-chart" aria-label="Selection Rate chart">
-      <h2>Selection Rate</h2>
       <EChart :option="rateOption" />
     </section>
 
     <section class="chart-section" data-testid="pie-chart" aria-label="Selection Share chart">
-      <h2>Selection Share</h2>
       <EChart :option="pieOption" />
     </section>
 
     <section class="chart-section" data-testid="heatmap-chart" aria-label="Head-to-Head chart">
-      <h2>Head-to-Head</h2>
       <EChart :option="heatmapOption" :height="Math.max(300, h2h.names.length * 50) + 'px'" />
     </section>
   </div>
@@ -302,9 +308,4 @@ const heatmapOption = computed(() => {
   gap: 2rem;
 }
 
-.chart-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 0.75rem;
-  color: var(--color-accent-secondary);
-}
 </style>
