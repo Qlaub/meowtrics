@@ -246,6 +246,20 @@ describe('LunchLogDashboard pie chart label visibility', () => {
   });
 });
 
+describe('LunchLogDashboard tooltip confinement', () => {
+  it('all charts have confine: true in tooltip options', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    expect(echarts.length).toBe(4);
+    echarts.forEach((chart, i) => {
+      const option = chart.props('option');
+      expect(option.tooltip.confine, `chart ${i} should have confine: true`).toBe(true);
+    });
+  });
+});
+
 describe('LunchLogDashboard edge cases', () => {
   it('renders with empty rows without errors', () => {
     const wrapper = mountDashboard([]);

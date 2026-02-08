@@ -21,6 +21,7 @@ export function useChartTheme() {
     backgroundColor: tokens.value['--color-chart-tooltip-bg'],
     borderColor: tokens.value['--color-border-subtle'],
     textStyle: { color: tokens.value['--color-chart-tooltip-text'] },
+    confine: true,
   }))
 
   const axisStyle = computed(() => ({
