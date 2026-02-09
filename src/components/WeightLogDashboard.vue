@@ -38,7 +38,7 @@ const lineOption = computed(() => {
         return `${p.name}<br/>Weight: ${p.value} lbs`
       },
     },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 60, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
     xAxis: {
       type: 'category',
       data: daily.value.map((d) => d.dateKey),
@@ -83,7 +83,7 @@ const weeklyOption = computed(() => {
         return `Week of ${p.name}<br/>Change: ${sign}${p.value} lbs`
       },
     },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 60, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
     xAxis: {
       type: 'category',
       data: weekly.value.map((w) => w.dateKey),

@@ -368,7 +368,7 @@ describe('LunchLogDashboard offered vs selected legend positioning', () => {
     await wrapper.vm.$nextTick();
     const echarts = wrapper.findAllComponents({ name: 'EChart' });
     const option = echarts[0].props('option');
-    expect(option.legend.bottom).toBe(0);
+    expect(option.legend.bottom).toBeLessThanOrEqual(30);
   });
 
   it('legend does not overlap with x-axis labels due to grid bottom margin', async () => {
@@ -384,16 +384,16 @@ describe('LunchLogDashboard offered vs selected legend positioning', () => {
     await wrapper.vm.$nextTick();
     const echarts = wrapper.findAllComponents({ name: 'EChart' });
     const option = echarts[0].props('option');
-    expect(option.legend.bottom).toBe(0);
+    expect(option.legend.bottom).toBeLessThanOrEqual(30);
   });
 
-  it('double bar chart grid.bottom is smaller than other charts to reduce legend gap', async () => {
+  it('double bar chart grid.bottom is larger than non-legend charts to accommodate the legend', async () => {
     const wrapper = mountDashboard();
     await wrapper.vm.$nextTick();
     const echarts = wrapper.findAllComponents({ name: 'EChart' });
     const doubleBarOption = echarts[0].props('option');
     const rateOption = echarts[1].props('option');
-    expect(doubleBarOption.grid.bottom).toBeLessThan(rateOption.grid.bottom);
+    expect(doubleBarOption.grid.bottom).toBeGreaterThan(rateOption.grid.bottom);
   });
 
   it('double bar chart grid.bottom provides moderate spacing for the legend', async () => {
@@ -410,7 +410,38 @@ describe('LunchLogDashboard offered vs selected legend positioning', () => {
     await wrapper.vm.$nextTick();
     const echarts = wrapper.findAllComponents({ name: 'EChart' });
     const option = echarts[0].props('option');
-    expect(option.grid.bottom).toBe(25);
+    expect(option.grid.bottom).toBe(45);
+  });
+});
+
+describe('LunchLogDashboard consistent chart spacing', () => {
+  it('all non-legend charts have the same grid.bottom for consistent spacing', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const rateBottom = echarts[1].props('option').grid.bottom;
+    const heatmapBottom = echarts[3].props('option').grid.bottom;
+    expect(rateBottom).toBe(heatmapBottom);
+  });
+
+  it('legend bottom offset equals non-legend grid.bottom for equal visual whitespace', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const doubleBarOption = echarts[0].props('option');
+    const rateOption = echarts[1].props('option');
+    expect(doubleBarOption.legend.bottom).toBe(rateOption.grid.bottom);
+  });
+
+  it('chart spacing is consistent on mobile viewport', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const rateBottom = echarts[1].props('option').grid.bottom;
+    const heatmapBottom = echarts[3].props('option').grid.bottom;
+    expect(rateBottom).toBe(heatmapBottom);
+    const doubleBarOption = echarts[0].props('option');
+    expect(doubleBarOption.legend.bottom).toBe(rateBottom);
   });
 });
 

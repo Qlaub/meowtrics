@@ -164,6 +164,25 @@ describe('WeightLogDashboard axis label sizes are unaffected by title size', () 
   });
 });
 
+describe('WeightLogDashboard consistent chart spacing', () => {
+  it('both charts use the same grid.bottom for consistent spacing', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const lineBottom = echarts[0].props('option').grid.bottom;
+    const weeklyBottom = echarts[1].props('option').grid.bottom;
+    expect(lineBottom).toBe(weeklyBottom);
+  });
+
+  it('grid.bottom matches standard value for cross-dashboard consistency', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const lineBottom = echarts[0].props('option').grid.bottom;
+    expect(lineBottom).toBe(20);
+  });
+});
+
 describe('WeightLogDashboard edge cases', () => {
   it('renders with empty rows without errors, weekly section hidden', () => {
     const wrapper = mountDashboard([]);

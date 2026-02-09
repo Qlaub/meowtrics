@@ -89,8 +89,8 @@ const doubleBarOption = computed(() => {
         return `<b>${full}</b><br/>` + params.map((p) => `${p.seriesName}: ${p.value}`).join('<br/>')
       },
     },
-    legend: { data: ['Offered', 'Selected'], bottom: 0, textStyle: { color: tokens.value['--color-text-secondary'] } },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 25, containLabel: true },
+    legend: { data: ['Offered', 'Selected'], bottom: 20, textStyle: { color: tokens.value['--color-text-secondary'] } },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 45, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
@@ -126,7 +126,7 @@ const rateOption = computed(() => {
         return `<b>${full}</b><br/>Selection rate: ${params[0].value}%<br/>(${c.selected}/${c.offered})`
       },
     },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
@@ -229,7 +229,7 @@ const heatmapOption = computed(() => {
         return `<b>${shortName(a)} vs ${shortName(b)}</b><br/>${m.wins}/${m.total} (${val}%)`
       },
     },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
     xAxis: {
       type: 'category',
       data: short,
