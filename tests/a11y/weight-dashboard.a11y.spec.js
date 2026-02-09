@@ -38,17 +38,4 @@ test.describe('Weight Dashboard Accessibility', () => {
     expect(results.violations).toEqual([]);
   });
 
-  test('stats section is readable by screen readers', async ({ page }) => {
-    const stats = page.locator('[data-testid="dataset-stats"]');
-
-    if ((await stats.count()) > 0) {
-      // Stats should have proper semantic markup
-      const results = await new AxeBuilder({ page })
-        .include('[data-testid="dataset-stats"]')
-        .withTags(['wcag2a', 'wcag2aa'])
-        .analyze();
-
-      expect(results.violations).toEqual([]);
-    }
-  });
 });

@@ -5,7 +5,7 @@ import { loadManifest, getDataset } from '@/data/manifest.js'
 import { fetchCsv } from '@/data/csv.js'
 import { normalizeLunchLog } from '@/data/lunchLog.js'
 import { normalizeWeightLog } from '@/data/weightLog.js'
-import { filterByRange, toDateKey } from '@/data/dates.js'
+import { filterByRange } from '@/data/dates.js'
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue'
 import WeightLogDashboard from '@/components/WeightLogDashboard.vue'
 
@@ -50,17 +50,6 @@ watch(
 const filteredRows = computed(() => {
   return filterByRange(rows.value, 'timestamp', range.value)
 })
-
-const stats = computed(() => {
-  const r = filteredRows.value
-  if (r.length === 0) return null
-  const dates = r.map((x) => x.timestamp).sort((a, b) => a - b)
-  return {
-    count: r.length,
-    from: toDateKey(dates[0]),
-    to: toDateKey(dates[dates.length - 1]),
-  }
-})
 </script>
 
 <template>
@@ -74,10 +63,6 @@ const stats = computed(() => {
 
     <template v-else-if="dataset">
       <h1>{{ dataset.cat }} — {{ dataset.title }}</h1>
-
-      <div v-if="stats" class="stats" data-testid="dataset-stats">
-        {{ stats.count }} entries &middot; {{ stats.from }} – {{ stats.to }}
-      </div>
 
       <div class="range-filter" data-testid="date-filter">
         <button
@@ -113,12 +98,6 @@ const stats = computed(() => {
 .dataset-view h1 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-}
-
-.stats {
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
 }
 
 .range-filter {
