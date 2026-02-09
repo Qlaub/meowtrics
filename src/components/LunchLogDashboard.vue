@@ -229,7 +229,7 @@ const heatmapOption = computed(() => {
         return `<b>${shortName(a)} vs ${shortName(b)}</b><br/>${m.wins}/${m.total} (${val}%)`
       },
     },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, top: 10, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
     xAxis: {
       type: 'category',
       data: short,

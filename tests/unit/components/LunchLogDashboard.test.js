@@ -321,6 +321,47 @@ describe('LunchLogDashboard axis label sizes are unaffected by title size', () =
   });
 });
 
+describe('LunchLogDashboard chart grid top margin for titles', () => {
+  it('heatmap grid.top leaves room for the title', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const heatmapOption = echarts[3].props('option');
+    const top = heatmapOption.grid.top;
+    expect(
+      top === undefined || top >= 30,
+      `heatmap grid.top should be undefined or >= 30, got ${top}`,
+    ).toBe(true);
+  });
+
+  it('all charts with grid config have sufficient top margin for titles', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      const option = chart.props('option');
+      if (option.grid) {
+        const top = option.grid.top;
+        expect(
+          top === undefined || top >= 30,
+          `chart ${i} grid.top should be undefined or >= 30, got ${top}`,
+        ).toBe(true);
+      }
+    });
+  });
+
+  it('heatmap grid.top is consistent with other grid-based charts', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const doubleBarTop = echarts[0].props('option').grid.top;
+    const rateTop = echarts[1].props('option').grid.top;
+    const heatmapTop = echarts[3].props('option').grid.top;
+    expect(heatmapTop).toBe(doubleBarTop);
+    expect(heatmapTop).toBe(rateTop);
+  });
+});
+
 describe('LunchLogDashboard edge cases', () => {
   it('renders with empty rows without errors', () => {
     const wrapper = mountDashboard([]);
