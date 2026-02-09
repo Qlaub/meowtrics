@@ -386,6 +386,32 @@ describe('LunchLogDashboard offered vs selected legend positioning', () => {
     const option = echarts[0].props('option');
     expect(option.legend.bottom).toBe(0);
   });
+
+  it('double bar chart grid.bottom is smaller than other charts to reduce legend gap', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const doubleBarOption = echarts[0].props('option');
+    const rateOption = echarts[1].props('option');
+    expect(doubleBarOption.grid.bottom).toBeLessThan(rateOption.grid.bottom);
+  });
+
+  it('double bar chart grid.bottom provides moderate spacing for the legend', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[0].props('option');
+    expect(option.grid.bottom).toBeGreaterThanOrEqual(20);
+    expect(option.grid.bottom).toBeLessThanOrEqual(60);
+  });
+
+  it('double bar chart grid.bottom is consistent on mobile viewport', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[0].props('option');
+    expect(option.grid.bottom).toBe(25);
+  });
 });
 
 describe('LunchLogDashboard edge cases', () => {

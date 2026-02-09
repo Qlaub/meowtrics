@@ -90,7 +90,7 @@ const doubleBarOption = computed(() => {
       },
     },
     legend: { data: ['Offered', 'Selected'], bottom: 0, textStyle: { color: tokens.value['--color-text-secondary'] } },
-    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
+    grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 25, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
