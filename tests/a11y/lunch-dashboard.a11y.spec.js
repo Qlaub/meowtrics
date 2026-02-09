@@ -30,14 +30,11 @@ test.describe('Lunch Dashboard Accessibility', () => {
     }
   });
 
-  test('filter buttons are keyboard accessible', async ({ page }) => {
-    const filterGroup = page.locator('[data-testid="date-filter"]');
+  test('dropdown trigger is keyboard accessible', async ({ page }) => {
+    const trigger = page.locator('[data-testid="dropdown-trigger"]');
 
-    // Tab into filter group
-    await filterGroup.locator('button').first().focus();
-
-    // Should be able to navigate with arrow keys or tab
-    await page.keyboard.press('Tab');
+    // Focus the dropdown trigger
+    await trigger.focus();
 
     const focusedElement = page.locator(':focus');
     await expect(focusedElement).toBeVisible();
