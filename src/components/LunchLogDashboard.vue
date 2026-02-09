@@ -72,7 +72,7 @@ function shortName(name) {
 const chartTitle = (text) => ({
   text,
   left: 'center',
-  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 16 },
+  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 18 },
 })
 
 const doubleBarOption = computed(() => {

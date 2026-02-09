@@ -75,6 +75,16 @@ describe('WeightLogDashboard structure and rendering', () => {
       );
     });
   });
+
+  it('chart titles have a font size larger than axis labels', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      const titleFontSize = chart.props('option').title.textStyle.fontSize;
+      expect(titleFontSize, `chart ${i} title fontSize should be 18`).toBe(18);
+    });
+  });
 });
 
 describe('WeightLogDashboard conditional rendering', () => {
@@ -138,6 +148,18 @@ describe('WeightLogDashboard tooltip confinement', () => {
     echarts.forEach((chart, i) => {
       const option = chart.props('option');
       expect(option.tooltip.confine, `chart ${i} should have confine: true`).toBe(true);
+    });
+  });
+});
+
+describe('WeightLogDashboard axis label sizes are unaffected by title size', () => {
+  it('axis labels remain at default mobile font size', async () => {
+    const wrapper = mountDashboard(multiWeekRows);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      const option = chart.props('option');
+      expect(option.xAxis.axisLabel.fontSize, `chart ${i} xAxis label size`).toBe(7);
     });
   });
 });

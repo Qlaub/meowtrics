@@ -96,6 +96,16 @@ describe('LunchLogDashboard structure and rendering', () => {
     });
   });
 
+  it('chart titles have a font size larger than axis labels', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    echarts.forEach((chart, i) => {
+      const titleFontSize = chart.props('option').title.textStyle.fontSize;
+      expect(titleFontSize, `chart ${i} title fontSize should be 18`).toBe(18);
+    });
+  });
+
   it('chart titles use themed color from tokens', async () => {
     const wrapper = mountDashboard();
     await wrapper.vm.$nextTick();
@@ -284,6 +294,29 @@ describe('LunchLogDashboard tooltip confinement', () => {
     echarts.forEach((chart, i) => {
       const option = chart.props('option');
       expect(option.tooltip.confine, `chart ${i} should have confine: true`).toBe(true);
+    });
+  });
+});
+
+describe('LunchLogDashboard axis label sizes are unaffected by title size', () => {
+  it('bar chart axis labels use expected font sizes on desktop', async () => {
+    const wrapper = mountDashboard(sampleRows, 1024);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    // Offered vs Selected (chart 0) and Selection Rate (chart 1)
+    [0, 1].forEach((idx) => {
+      const option = echarts[idx].props('option');
+      expect(option.xAxis.axisLabel.fontSize).toBe(10);
+    });
+  });
+
+  it('bar chart axis labels use expected font sizes on mobile', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    [0, 1].forEach((idx) => {
+      const option = echarts[idx].props('option');
+      expect(option.xAxis.axisLabel.fontSize).toBe(7);
     });
   });
 });

@@ -24,7 +24,7 @@ const axisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
 const chartTitle = (text) => ({
   text,
   left: 'center',
-  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 16 },
+  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 18 },
 })
 
 const lineOption = computed(() => {
