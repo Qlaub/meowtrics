@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export function parseCsv(text) {
@@ -82,6 +83,6 @@ function main() {
   console.log(`Wrote ${result['least-represented-couplings'].length} pairings to ${outputPath}`)
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main()
 }
