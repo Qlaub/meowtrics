@@ -89,7 +89,7 @@ const doubleBarOption = computed(() => {
         return `<b>${full}</b><br/>` + params.map((p) => `${p.seriesName}: ${p.value}`).join('<br/>')
       },
     },
-    legend: { data: ['Offered', 'Selected'], textStyle: { color: tokens.value['--color-text-secondary'] } },
+    legend: { data: ['Offered', 'Selected'], bottom: 0, textStyle: { color: tokens.value['--color-text-secondary'] } },
     grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 80, containLabel: true },
     xAxis: {
       type: 'category',

@@ -362,6 +362,32 @@ describe('LunchLogDashboard chart grid top margin for titles', () => {
   });
 });
 
+describe('LunchLogDashboard offered vs selected legend positioning', () => {
+  it('legend is positioned at the bottom of the chart', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[0].props('option');
+    expect(option.legend.bottom).toBe(0);
+  });
+
+  it('legend does not overlap with x-axis labels due to grid bottom margin', async () => {
+    const wrapper = mountDashboard();
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[0].props('option');
+    expect(option.grid.bottom).toBeGreaterThan(0);
+  });
+
+  it('legend positioning is consistent on mobile viewport', async () => {
+    const wrapper = mountDashboard(sampleRows, 375);
+    await wrapper.vm.$nextTick();
+    const echarts = wrapper.findAllComponents({ name: 'EChart' });
+    const option = echarts[0].props('option');
+    expect(option.legend.bottom).toBe(0);
+  });
+});
+
 describe('LunchLogDashboard edge cases', () => {
   it('renders with empty rows without errors', () => {
     const wrapper = mountDashboard([]);
