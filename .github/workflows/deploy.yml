@@ -19,29 +19,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - name: Check if analysis needed
-        id: check-analysis
-        run: |
-          if [ ! -f public/data/analysis.json ]; then
-            echo "needed=true" >> "$GITHUB_OUTPUT"
-          else
-            CHANGED=$(git diff --name-only HEAD~1 HEAD -- public/data/cummings-lunch-log 2>/dev/null || echo "")
-            if [ -n "$CHANGED" ]; then
-              echo "needed=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "needed=false" >> "$GITHUB_OUTPUT"
-            fi
-          fi
       - name: Run least-represented analysis
-        if: steps.check-analysis.outputs.needed == 'true'
         run: node scripts/analyze-least-represented.js
       - run: npm run build
       - name: Upload artifact
