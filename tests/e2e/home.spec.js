@@ -81,6 +81,36 @@ test.describe('Home Page', () => {
     await expect(page).toHaveURL(/\/#\/datasets\/.+/);
   });
 
+  test('nav menu closes when clicking outside the menu', async ({ page }) => {
+    await page.goto('/');
+
+    const menuButton = page.locator('[data-testid="menu-toggle"]');
+    const nav = page.locator('[data-testid="nav-menu"]');
+
+    // Open menu
+    await menuButton.click();
+    await expect(nav).toBeVisible();
+
+    // Click outside the menu (on the main content area)
+    await page.locator('#main').click();
+    await expect(nav).not.toBeVisible();
+  });
+
+  test('nav menu does not close when clicking inside the menu (non-link area)', async ({ page }) => {
+    await page.goto('/');
+
+    const menuButton = page.locator('[data-testid="menu-toggle"]');
+    const nav = page.locator('[data-testid="nav-menu"]');
+
+    // Open menu
+    await menuButton.click();
+    await expect(nav).toBeVisible();
+
+    // Click on the nav group label (inside menu but not a link)
+    await nav.locator('.nav-group-label').first().click();
+    await expect(nav).toBeVisible();
+  });
+
   test('nav menu closes when clicking current dataset page link', async ({ page }) => {
     // Navigate to a dataset page via home card to ensure manifest is loaded
     await page.goto('/');

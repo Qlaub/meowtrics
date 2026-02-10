@@ -12,7 +12,7 @@ node_modules
 dist
 dist-ssr
 coverage
-upcoming
+ideas/
 *.local
 
 # Editor directories and files

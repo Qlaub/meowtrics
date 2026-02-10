@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { loadManifest, groupBycat } from '@/data/manifest.js'
 import { useDeviceContextStore } from '@/stores/deviceContext.js'
@@ -12,6 +12,8 @@ deviceContext.init()
 const themeStore = useThemeStore()
 themeStore.init()
 const menuOpen = ref(false)
+const navMenuRef = ref(null)
+const hamburgerRef = ref(null)
 const manifest = ref([])
 const error = ref(null)
 
@@ -33,18 +35,28 @@ watch(
     menuOpen.value = false
   },
 )
+
+function handleClickOutside(e) {
+  if (!menuOpen.value) return
+  if (navMenuRef.value && navMenuRef.value.contains(e.target)) return
+  if (hamburgerRef.value && hamburgerRef.value.contains(e.target)) return
+  menuOpen.value = false
+}
+
+onMounted(() => document.addEventListener('pointerdown', handleClickOutside))
+onUnmounted(() => document.removeEventListener('pointerdown', handleClickOutside))
 </script>
 
 <template>
   <header class="app-header">
-    <button class="hamburger" aria-label="Toggle menu" data-testid="menu-toggle" @click="menuOpen = !menuOpen">
+    <button ref="hamburgerRef" class="hamburger" aria-label="Toggle menu" data-testid="menu-toggle" @click="menuOpen = !menuOpen">
       <span :class="{ open: menuOpen }"></span>
     </button>
     <RouterLink to="/" class="app-title">Meowtrics</RouterLink>
     <ThemeSwitch />
   </header>
 
-  <nav v-if="menuOpen" class="nav-menu" data-testid="nav-menu">
+  <nav v-if="menuOpen" ref="navMenuRef" class="nav-menu" data-testid="nav-menu">
     <RouterLink to="/" class="nav-link" @click="menuOpen = false">Home</RouterLink>
     <template v-for="(datasets, cat) in grouped()" :key="cat">
       <div class="nav-group-label">{{ cat }}</div>
