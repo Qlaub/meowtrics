@@ -50,3 +50,26 @@ export function weeklyChanges(dailyAvgs) {
   }
   return result
 }
+
+export function calculateWeightTrend(normalizedRows) {
+  const dailyAvgs = dailyAverages(normalizedRows)
+  if (dailyAvgs.length <= 1) return null
+
+  let currentWeek, previousWeek
+  if (dailyAvgs.length >= 14) {
+    currentWeek = dailyAvgs.slice(-7)
+    previousWeek = dailyAvgs.slice(-14, -7)
+  } else {
+    const take = Math.min(7, dailyAvgs.length)
+    currentWeek = dailyAvgs.slice(-take)
+    previousWeek = dailyAvgs.slice(0, take)
+  }
+
+  const avg = (arr) => arr.reduce((sum, d) => sum + d.avgWeightLbs, 0) / arr.length
+  const currentAvg = +avg(currentWeek).toFixed(2)
+  const previousAvg = +avg(previousWeek).toFixed(2)
+  const change = +(currentAvg - previousAvg).toFixed(2)
+  const direction = change < 0 ? 'down' : change > 0 ? 'up' : 'equal'
+
+  return { currentAvg, previousAvg, change, direction }
+}

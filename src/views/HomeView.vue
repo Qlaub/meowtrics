@@ -1,20 +1,45 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { loadManifest, groupBycat } from '@/data/manifest.js'
+import { fetchCsv } from '@/data/csv.js'
+import { normalizeWeightLog, calculateWeightTrend } from '@/data/weightLog.js'
 
 const manifest = ref([])
 const error = ref(null)
 const loading = ref(true)
+const trends = reactive({})
 
 async function load() {
   try {
     manifest.value = await loadManifest()
+    loadTrends()
   } catch {
     error.value = 'Failed to load datasets. Please try again.'
   } finally {
     loading.value = false
   }
 }
+
+async function loadTrends() {
+  const weightDatasets = manifest.value.filter((d) => d.type === 'weight_log')
+  for (const ds of weightDatasets) {
+    try {
+      const rows = await fetchCsv(ds.file)
+      const normalized = normalizeWeightLog(rows)
+      const trend = calculateWeightTrend(normalized)
+      if (trend) trends[ds.cat] = trend
+    } catch {
+      // Silently skip — trend is optional decoration
+    }
+  }
+}
+
+function trendArrow(direction) {
+  if (direction === 'down') return '\u2193'
+  if (direction === 'up') return '\u2191'
+  return '='
+}
+
 load()
 
 const grouped = () => groupBycat(manifest.value)
@@ -33,7 +58,13 @@ const grouped = () => groupBycat(manifest.value)
 
     <template v-else>
       <section v-for="(datasets, cat) in grouped()" :key="cat" class="cat-group">
-        <h2>{{ cat }}</h2>
+        <h2>
+          {{ cat }}
+          <span v-if="trends[cat]" class="weight-trend" data-testid="weight-trend">
+            {{ trendArrow(trends[cat].direction) }}
+            {{ Math.abs(trends[cat].change) }} lbs from last week
+          </span>
+        </h2>
         <div class="card-grid">
           <RouterLink
             v-for="d in datasets"
@@ -65,6 +96,12 @@ const grouped = () => groupBycat(manifest.value)
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
   color: var(--color-accent-secondary);
+}
+
+.weight-trend {
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin-left: 0.5rem;
 }
 
 .card-grid {

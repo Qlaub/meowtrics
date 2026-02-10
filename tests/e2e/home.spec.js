@@ -167,6 +167,33 @@ test.describe('Home Page', () => {
     expect(navTransition).toContain('0.15s');
   });
 
+  test('weight trend indicators are visible for cats with weight data', async ({ page }) => {
+    await page.goto('/');
+
+    // Wait for cards to render first
+    await expect(page.locator('[data-testid="dataset-card"]').first()).toBeVisible();
+
+    // Both Cummings and Obi have weight_log datasets, so trends should appear
+    const trends = page.locator('[data-testid="weight-trend"]');
+    await expect(trends.first()).toBeVisible({ timeout: 10000 });
+
+    const count = await trends.count();
+    expect(count).toBe(2);
+  });
+
+  test('trend indicator shows arrow and lbs value', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('[data-testid="dataset-card"]').first()).toBeVisible();
+
+    const trend = page.locator('[data-testid="weight-trend"]').first();
+    await expect(trend).toBeVisible({ timeout: 10000 });
+
+    // Should contain an arrow (up/down) or = sign, a number, and "lbs"
+    const text = await trend.textContent();
+    expect(text).toMatch(/[\u2191\u2193=]\s*[\d.]+\s*lbs/);
+  });
+
   test('nav menu closes when clicking current dataset page link', async ({ page }) => {
     // Navigate to a dataset page via home card to ensure manifest is loaded
     await page.goto('/');

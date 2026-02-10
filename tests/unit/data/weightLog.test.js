@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeWeightLog, dailyAverages, weeklyChanges } from '@/data/weightLog.js';
+import {
+  normalizeWeightLog,
+  dailyAverages,
+  weeklyChanges,
+  calculateWeightTrend,
+} from '@/data/weightLog.js';
 
 describe('normalizeWeightLog', () => {
   it('converts raw rows to normalized format', () => {
@@ -132,5 +137,127 @@ describe('weeklyChanges', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].change).toBe(-1.5);
+  });
+});
+
+describe('calculateWeightTrend', () => {
+  // Helper to create normalized rows (one per day)
+  function makeRows(weights) {
+    return weights.map((w, i) => ({
+      timestamp: new Date(`2026-01-${String(i + 1).padStart(2, '0')}T12:00:00`),
+      dateKey: `01/${String(i + 1).padStart(2, '0')}/2026`,
+      weightLbs: w,
+    }));
+  }
+
+  it('returns null for empty input', () => {
+    expect(calculateWeightTrend([])).toBeNull();
+  });
+
+  it('returns null for single data point', () => {
+    const rows = makeRows([15.0]);
+    expect(calculateWeightTrend(rows)).toBeNull();
+  });
+
+  it('calculates upward trend with >= 14 daily data points', () => {
+    // 7 days at 14.0 then 7 days at 16.0
+    const rows = makeRows([
+      14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0,
+    ]);
+
+    const result = calculateWeightTrend(rows);
+
+    expect(result.direction).toBe('up');
+    expect(result.change).toBe(2.0);
+    expect(result.currentAvg).toBe(16.0);
+    expect(result.previousAvg).toBe(14.0);
+  });
+
+  it('calculates downward trend with >= 14 daily data points', () => {
+    // 7 days at 16.0 then 7 days at 14.0
+    const rows = makeRows([
+      16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0,
+    ]);
+
+    const result = calculateWeightTrend(rows);
+
+    expect(result.direction).toBe('down');
+    expect(result.change).toBe(-2.0);
+  });
+
+  it('returns equal direction when averages match', () => {
+    const rows = makeRows([
+      15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0,
+    ]);
+
+    const result = calculateWeightTrend(rows);
+
+    expect(result.direction).toBe('equal');
+    expect(result.change).toBe(0);
+  });
+
+  it('small dataset (<14 points): uses first 7 and last 7 with overlap', () => {
+    // 10 points: first 7 avg = (10+11+12+13+14+15+16)/7 = 13.0
+    // last 7 avg = (14+15+16+17+18+19+20)/7 = 17.0 (overlap at indices 3-6)
+    const rows = makeRows([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+    // Wait, that's 11 points. Let me use exactly 10.
+    const rows10 = makeRows([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+    // first 7: [10,11,12,13,14,15,16] avg = 13.0
+    // last 7:  [13,14,15,16,17,18,19] avg = 16.0
+
+    const result = calculateWeightTrend(rows10);
+
+    expect(result.direction).toBe('up');
+    expect(result.change).toBe(3);
+    expect(result.previousAvg).toBe(13);
+    expect(result.currentAvg).toBe(16);
+  });
+
+  it('small dataset with exactly 7 points results in equal (identical sets)', () => {
+    const rows = makeRows([15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0]);
+
+    const result = calculateWeightTrend(rows);
+
+    expect(result.direction).toBe('equal');
+    expect(result.change).toBe(0);
+  });
+
+  it('rounds change to 2 decimal places', () => {
+    // Create a scenario where raw math produces more than 2 decimals
+    const rows = makeRows([
+      10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.1, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2,
+    ]);
+    // previous 7: [10,10,10,10,10,10,10.1] avg = 10.014285... -> 10.01
+    // current 7: [10.2,10.2,10.2,10.2,10.2,10.2,10.2] avg = 10.2
+    // change = 10.2 - 10.01 = 0.19
+
+    const result = calculateWeightTrend(rows);
+
+    expect(String(result.change).split('.')[1]?.length || 0).toBeLessThanOrEqual(2);
+  });
+
+  it('exactly 14 data points uses normal path with no overlap', () => {
+    // First 7 at 12.0, last 7 at 14.0
+    const rows = makeRows([
+      12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0,
+    ]);
+
+    const result = calculateWeightTrend(rows);
+
+    expect(result.direction).toBe('up');
+    expect(result.change).toBe(2.0);
+    expect(result.previousAvg).toBe(12.0);
+    expect(result.currentAvg).toBe(14.0);
+  });
+
+  it('handles 2 data points (minimum for a trend, full overlap)', () => {
+    const rows = makeRows([14.0, 16.0]);
+
+    const result = calculateWeightTrend(rows);
+
+    // With 2 points, both current and previous are the same set (full overlap)
+    expect(result).not.toBeNull();
+    expect(result.direction).toBe('equal');
+    expect(result.change).toBe(0);
   });
 });
