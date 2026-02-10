@@ -56,21 +56,23 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleClickOutside
     <ThemeSwitch />
   </header>
 
-  <nav v-if="menuOpen" ref="navMenuRef" class="nav-menu" data-testid="nav-menu">
-    <RouterLink to="/" class="nav-link" @click="menuOpen = false">Home</RouterLink>
-    <template v-for="(datasets, cat) in grouped()" :key="cat">
-      <div class="nav-group-label">{{ cat }}</div>
-      <RouterLink
-        v-for="d in datasets"
-        :key="d.id"
-        :to="{ name: 'dataset', params: { datasetId: d.id } }"
-        class="nav-link nav-link--indent"
-        @click="menuOpen = false"
-      >
-        {{ d.title }}
-      </RouterLink>
-    </template>
-  </nav>
+  <div class="nav-menu-wrapper" :class="{ 'is-open': menuOpen }" data-testid="nav-menu-wrapper">
+    <nav ref="navMenuRef" class="nav-menu" :inert="!menuOpen" data-testid="nav-menu">
+      <RouterLink to="/" class="nav-link" @click="menuOpen = false">Home</RouterLink>
+      <template v-for="(datasets, cat) in grouped()" :key="cat">
+        <div class="nav-group-label">{{ cat }}</div>
+        <RouterLink
+          v-for="d in datasets"
+          :key="d.id"
+          :to="{ name: 'dataset', params: { datasetId: d.id } }"
+          class="nav-link nav-link--indent"
+          @click="menuOpen = false"
+        >
+          {{ d.title }}
+        </RouterLink>
+      </template>
+    </nav>
+  </div>
 
   <main id="main">
     <RouterView />
@@ -142,14 +144,43 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleClickOutside
   transform: rotate(-45deg);
 }
 
+.nav-menu-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.15s ease, margin-bottom 0.15s ease;
+}
+
+.nav-menu-wrapper.is-open {
+  grid-template-rows: 1fr;
+  margin-bottom: 1.5rem;
+}
+
 .nav-menu {
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: var(--color-surface-1);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid transparent;
   border-radius: 8px;
+  padding: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    visibility 0.15s,
+    padding 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.nav-menu-wrapper.is-open .nav-menu {
+  border-color: var(--color-border-subtle);
   padding: 0.5rem 0;
-  margin-bottom: 1.5rem;
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
 }
 
 .nav-link {
@@ -177,4 +208,5 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleClickOutside
   letter-spacing: 0.05em;
   color: var(--color-accent-secondary);
 }
+
 </style>

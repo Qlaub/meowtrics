@@ -111,6 +111,62 @@ test.describe('Home Page', () => {
     await expect(nav).toBeVisible();
   });
 
+  test('main content moves down smoothly when nav menu opens', async ({ page }) => {
+    await page.goto('/');
+
+    const main = page.locator('#main');
+    const menuButton = page.locator('[data-testid="menu-toggle"]');
+
+    const mainTopBefore = (await main.boundingBox()).y;
+
+    // Open menu and wait for transition to complete
+    await menuButton.click();
+    await expect(page.locator('[data-testid="nav-menu"]')).toBeVisible();
+    // Wait for CSS transition (0.15s) to settle
+    await page.waitForTimeout(200);
+
+    const mainTopAfter = (await main.boundingBox()).y;
+    expect(mainTopAfter).toBeGreaterThan(mainTopBefore);
+  });
+
+  test('main content moves back up when nav menu closes', async ({ page }) => {
+    await page.goto('/');
+
+    const main = page.locator('#main');
+    const menuButton = page.locator('[data-testid="menu-toggle"]');
+
+    const mainTopBefore = (await main.boundingBox()).y;
+
+    // Open menu
+    await menuButton.click();
+    await expect(page.locator('[data-testid="nav-menu"]')).toBeVisible();
+    await page.waitForTimeout(200);
+
+    // Close menu
+    await menuButton.click();
+    await expect(page.locator('[data-testid="nav-menu"]')).not.toBeVisible();
+    await page.waitForTimeout(200);
+
+    const mainTopAfter = (await main.boundingBox()).y;
+    expect(mainTopAfter).toBeCloseTo(mainTopBefore, 0);
+  });
+
+  test('content transition timing matches nav menu transition', async ({ page }) => {
+    await page.goto('/');
+
+    const wrapper = page.locator('[data-testid="nav-menu-wrapper"]');
+    const nav = page.locator('[data-testid="nav-menu"]');
+
+    const wrapperTransition = await wrapper.evaluate(
+      (el) => getComputedStyle(el).transitionDuration,
+    );
+    const navTransition = await nav.evaluate((el) => getComputedStyle(el).transitionDuration);
+
+    // Both should include 0.15s durations
+    expect(wrapperTransition).toContain('0.15s');
+    expect(navTransition).toContain('0.15s');
+  });
+
   test('nav menu closes when clicking current dataset page link', async ({ page }) => {
     // Navigate to a dataset page via home card to ensure manifest is loaded
     await page.goto('/');
