@@ -8,6 +8,7 @@ const dateFilter = { key: 'date', label: 'Date', type: 'date' };
 function mountFilterBar(filters = [selectFilter, dateFilter], modelValue = { color: '', date: '' }) {
   return mount(FilterBar, {
     props: { filters, modelValue },
+    attachTo: document.body,
   });
 }
 
@@ -19,19 +20,22 @@ describe('FilterBar rendering', () => {
 
   it('renders a control for each filter definition', () => {
     const wrapper = mountFilterBar();
-    expect(wrapper.find('[data-testid="filter-color"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="dropdown-trigger"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="filter-date"]').exists()).toBe(true);
   });
 
-  it('select filter shows "All" as first option plus provided options', () => {
+  it('select filter shows "All" as first option plus provided options', async () => {
     const wrapper = mountFilterBar();
-    const select = wrapper.find('[data-testid="filter-color"]');
-    const options = select.findAll('option');
-    expect(options).toHaveLength(3);
-    expect(options[0].text()).toBe('All');
-    expect(options[0].element.value).toBe('');
-    expect(options[1].text()).toBe('Red');
-    expect(options[2].text()).toBe('Blue');
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    const allOption = wrapper.find('[data-testid="filter-color-"]');
+    const redOption = wrapper.find('[data-testid="filter-color-Red"]');
+    const blueOption = wrapper.find('[data-testid="filter-color-Blue"]');
+    expect(allOption.exists()).toBe(true);
+    expect(allOption.text()).toBe('All');
+    expect(redOption.exists()).toBe(true);
+    expect(redOption.text()).toBe('Red');
+    expect(blueOption.exists()).toBe(true);
+    expect(blueOption.text()).toBe('Blue');
   });
 
   it('date filter renders an input of type date', () => {
@@ -51,8 +55,8 @@ describe('FilterBar rendering', () => {
 describe('FilterBar interaction', () => {
   it('selecting a value emits update:modelValue with updated filter state', async () => {
     const wrapper = mountFilterBar();
-    const select = wrapper.find('[data-testid="filter-color"]');
-    await select.setValue('Red');
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    await wrapper.find('[data-testid="filter-color-Red"]').trigger('click');
     expect(wrapper.emitted('update:modelValue')).toBeTruthy();
     expect(wrapper.emitted('update:modelValue')[0][0]).toEqual({ color: 'Red', date: '' });
   });
@@ -67,8 +71,8 @@ describe('FilterBar interaction', () => {
 
   it('selecting "All" resets that filter key to empty string', async () => {
     const wrapper = mountFilterBar([selectFilter], { color: 'Red' });
-    const select = wrapper.find('[data-testid="filter-color"]');
-    await select.setValue('');
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    await wrapper.find('[data-testid="filter-color-"]').trigger('click');
     expect(wrapper.emitted('update:modelValue')[0][0]).toEqual({ color: '' });
   });
 });
@@ -80,7 +84,7 @@ describe('FilterBar reusability', () => {
       { key: 'created', label: 'Created', type: 'date' },
     ];
     const wrapper = mountFilterBar(customFilters, { status: '', created: '' });
-    expect(wrapper.find('[data-testid="filter-status"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="dropdown-trigger"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="filter-created"]').exists()).toBe(true);
   });
 

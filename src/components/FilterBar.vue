@@ -1,4 +1,6 @@
 <script setup>
+import DropdownButton from '@/components/DropdownButton.vue'
+
 const props = defineProps({
   filters: {
     type: Array,
@@ -12,6 +14,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+function buildDropdownOptions(options) {
+  return [{ value: '', label: 'All' }, ...options.map((o) => ({ value: o, label: o }))]
+}
+
 function updateFilter(key, value) {
   emit('update:modelValue', { ...props.modelValue, [key]: value })
 }
@@ -21,16 +27,13 @@ function updateFilter(key, value) {
   <div class="filter-bar" data-testid="filter-bar">
     <div v-for="filter in filters" :key="filter.key" class="filter-group">
       <label :for="'filter-' + filter.key">{{ filter.label }}</label>
-      <select
+      <DropdownButton
         v-if="filter.type === 'select'"
-        :id="'filter-' + filter.key"
-        :data-testid="'filter-' + filter.key"
-        :value="modelValue[filter.key]"
-        @change="updateFilter(filter.key, $event.target.value)"
-      >
-        <option value="">All</option>
-        <option v-for="opt in filter.options" :key="opt" :value="opt">{{ opt }}</option>
-      </select>
+        :options="buildDropdownOptions(filter.options)"
+        :modelValue="modelValue[filter.key]"
+        :testIdPrefix="'filter-' + filter.key"
+        @update:modelValue="updateFilter(filter.key, $event)"
+      />
       <input
         v-else-if="filter.type === 'date'"
         type="date"
@@ -62,7 +65,6 @@ function updateFilter(key, value) {
   color: var(--color-text-secondary);
 }
 
-.filter-group select,
 .filter-group input[type='date'] {
   padding: 0.4rem 0.75rem;
   border: 1px solid var(--color-border-subtle);

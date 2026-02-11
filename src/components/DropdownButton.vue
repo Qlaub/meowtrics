@@ -68,7 +68,6 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 <style scoped>
 .range-dropdown {
   position: relative;
-  margin-bottom: 1.5rem;
 }
 
 .dropdown-trigger {
