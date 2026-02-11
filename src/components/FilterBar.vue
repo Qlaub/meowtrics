@@ -16,7 +16,10 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 function buildDropdownOptions(options) {
-  return [{ value: '', label: 'All' }, ...options.map((o) => ({ value: o, label: o }))]
+  return [
+    { value: '', label: 'All' },
+    ...options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o)),
+  ]
 }
 
 function updateFilter(key, value) {

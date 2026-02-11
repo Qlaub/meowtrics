@@ -130,6 +130,48 @@ describe('DropdownButton', () => {
     });
   });
 
+  describe('custom display label', () => {
+    const optionsWithDisplayLabels = [
+      { value: 'obi', label: 'Obi', displayLabel: 'Cat: Obi' },
+      { value: 'cummings', label: 'Cummings', displayLabel: 'Cat: Cummings' },
+    ];
+
+    it('shows the selected option displayLabel on the trigger when provided', () => {
+      wrapper = mountDropdown({
+        options: optionsWithDisplayLabels,
+        modelValue: 'obi',
+      });
+      const trigger = wrapper.find('[data-testid="dropdown-trigger"]');
+      expect(trigger.text()).toContain('Cat: Obi');
+    });
+
+    it('updates trigger text to match the newly selected option displayLabel', () => {
+      wrapper = mountDropdown({
+        options: optionsWithDisplayLabels,
+        modelValue: 'cummings',
+      });
+      const trigger = wrapper.find('[data-testid="dropdown-trigger"]');
+      expect(trigger.text()).toContain('Cat: Cummings');
+    });
+
+    it('falls back to selected option label when no displayLabel is defined', () => {
+      wrapper = mountDropdown({ modelValue: '30' });
+      const trigger = wrapper.find('[data-testid="dropdown-trigger"]');
+      expect(trigger.text()).toContain('Last 30 days');
+    });
+
+    it('dropdown menu items show label not displayLabel', async () => {
+      wrapper = mountDropdown({
+        options: optionsWithDisplayLabels,
+        modelValue: 'obi',
+      });
+      await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+      const buttons = wrapper.findAll('.dropdown-menu button');
+      expect(buttons[0].text()).toBe('Obi');
+      expect(buttons[1].text()).toBe('Cummings');
+    });
+  });
+
   describe('click outside to close', () => {
     it('closes the menu when clicking outside the component', async () => {
       wrapper = mountDropdown();

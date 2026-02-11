@@ -23,7 +23,8 @@ const dropdownRef = ref(null)
 
 const activeLabel = computed(() => {
   const opt = props.options.find((o) => o.value === props.modelValue)
-  return opt ? opt.label : ''
+  if (!opt) return ''
+  return opt.displayLabel || opt.label
 })
 
 function selectOption(value) {

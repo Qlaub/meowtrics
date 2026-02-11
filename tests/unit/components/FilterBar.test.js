@@ -105,6 +105,52 @@ describe('FilterBar interaction', () => {
   });
 });
 
+describe('FilterBar option objects with displayLabel', () => {
+  const objectOptionsFilter = {
+    key: 'cat',
+    label: 'Cat',
+    type: 'select',
+    options: [
+      { value: 'obi', label: 'Obi', displayLabel: 'Cat: Obi' },
+      { value: 'cummings', label: 'Cummings', displayLabel: 'Cat: Cummings' },
+    ],
+  };
+
+  it('preserves displayLabel when options are objects', async () => {
+    const wrapper = mountFilterBar([objectOptionsFilter], { cat: '' });
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    const allOption = wrapper.find('[data-testid="filter-cat-"]');
+    const obiOption = wrapper.find('[data-testid="filter-cat-obi"]');
+    const cummingsOption = wrapper.find('[data-testid="filter-cat-cummings"]');
+    expect(allOption.exists()).toBe(true);
+    expect(allOption.text()).toBe('All');
+    expect(obiOption.exists()).toBe(true);
+    expect(obiOption.text()).toBe('Obi');
+    expect(cummingsOption.exists()).toBe(true);
+    expect(cummingsOption.text()).toBe('Cummings');
+  });
+
+  it('trigger shows displayLabel when an object option is selected', () => {
+    const wrapper = mountFilterBar([objectOptionsFilter], { cat: 'obi' });
+    const trigger = wrapper.find('[data-testid="dropdown-trigger"]');
+    expect(trigger.text()).toContain('Cat: Obi');
+  });
+
+  it('trigger shows displayLabel for a different selected object option', () => {
+    const wrapper = mountFilterBar([objectOptionsFilter], { cat: 'cummings' });
+    const trigger = wrapper.find('[data-testid="dropdown-trigger"]');
+    expect(trigger.text()).toContain('Cat: Cummings');
+  });
+
+  it('plain string options still work alongside object option support', async () => {
+    const wrapper = mountFilterBar([selectFilter], { color: '' });
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    const redOption = wrapper.find('[data-testid="filter-color-Red"]');
+    expect(redOption.exists()).toBe(true);
+    expect(redOption.text()).toBe('Red');
+  });
+});
+
 describe('FilterBar reusability', () => {
   it('accepts arbitrary filter definitions', async () => {
     const customFilters = [
