@@ -137,7 +137,11 @@ describe('EventLogDashboard filtering', () => {
   it('filtering by cat shows only matching rows', async () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
-    await filterBar.vm.$emit('update:modelValue', { cat: 'Obi', event: '', date: '' });
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: 'Obi',
+      event: '',
+      date: { start: '', end: '' },
+    });
     await wrapper.vm.$nextTick();
     const cats = getCellTexts(wrapper, 0);
     expect(cats.every((c) => c === 'Obi')).toBe(true);
@@ -147,20 +151,56 @@ describe('EventLogDashboard filtering', () => {
   it('filtering by event type shows only matching rows', async () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
-    await filterBar.vm.$emit('update:modelValue', { cat: '', event: 'Medication', date: '' });
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: '',
+      event: 'Medication',
+      date: { start: '', end: '' },
+    });
     await wrapper.vm.$nextTick();
     const events = getCellTexts(wrapper, 1);
     expect(events).toEqual(['Medication']);
   });
 
-  it('filtering by date shows only rows with matching dateKey', async () => {
+  it('filtering by date range start shows only rows on or after start date', async () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
-    await filterBar.vm.$emit('update:modelValue', { cat: '', event: '', date: '2026-01-15' });
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: '',
+      event: '',
+      date: { start: '2026-01-20', end: '' },
+    });
     await wrapper.vm.$nextTick();
     const rows = getTableRows(wrapper);
-    expect(rows).toHaveLength(1);
-    expect(rows[0].findAll('td')[0].text()).toBe('Obi');
+    expect(rows).toHaveLength(2);
+  });
+
+  it('filtering by date range end shows only rows on or before end date', async () => {
+    const wrapper = mountDashboard();
+    const filterBar = wrapper.findComponent(FilterBar);
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: '',
+      event: '',
+      date: { start: '', end: '2026-01-20' },
+    });
+    await wrapper.vm.$nextTick();
+    const rows = getTableRows(wrapper);
+    expect(rows).toHaveLength(2);
+  });
+
+  it('filtering by full date range is inclusive of both boundaries', async () => {
+    const wrapper = mountDashboard();
+    const filterBar = wrapper.findComponent(FilterBar);
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: '',
+      event: '',
+      date: { start: '2026-01-15', end: '2026-01-20' },
+    });
+    await wrapper.vm.$nextTick();
+    const rows = getTableRows(wrapper);
+    expect(rows).toHaveLength(2);
+    const dates = getCellTexts(wrapper, 3);
+    expect(dates.some((d) => d.includes('01/15/2026'))).toBe(true);
+    expect(dates.some((d) => d.includes('01/20/2026'))).toBe(true);
   });
 
   it('multiple filters combine with AND logic', async () => {
@@ -169,7 +209,7 @@ describe('EventLogDashboard filtering', () => {
     await filterBar.vm.$emit('update:modelValue', {
       cat: 'Obi',
       event: 'Vet visit',
-      date: '',
+      date: { start: '', end: '' },
     });
     await wrapper.vm.$nextTick();
     const rows = getTableRows(wrapper);
@@ -182,11 +222,19 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     // Apply filter
-    await filterBar.vm.$emit('update:modelValue', { cat: 'Obi', event: '', date: '' });
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: 'Obi',
+      event: '',
+      date: { start: '', end: '' },
+    });
     await wrapper.vm.$nextTick();
     expect(getTableRows(wrapper)).toHaveLength(2);
     // Clear filter
-    await filterBar.vm.$emit('update:modelValue', { cat: '', event: '', date: '' });
+    await filterBar.vm.$emit('update:modelValue', {
+      cat: '',
+      event: '',
+      date: { start: '', end: '' },
+    });
     await wrapper.vm.$nextTick();
     expect(getTableRows(wrapper)).toHaveLength(3);
   });

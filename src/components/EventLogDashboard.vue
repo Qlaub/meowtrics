@@ -12,7 +12,7 @@ const props = defineProps({
 
 const sortColumn = ref('timestamp')
 const sortDirection = ref('desc')
-const filterValues = ref({ cat: '', event: '', date: '' })
+const filterValues = ref({ cat: '', event: '', date: { start: '', end: '' } })
 
 const filterDefinitions = computed(() => {
   const cats = [...new Set(props.rows.map((r) => r.cat))].sort()
@@ -20,7 +20,7 @@ const filterDefinitions = computed(() => {
   return [
     { key: 'cat', label: 'Cat', type: 'select', options: cats },
     { key: 'event', label: 'Event', type: 'select', options: events },
-    { key: 'date', label: 'Date', type: 'date' },
+    { key: 'date', label: 'Date', type: 'date_range' },
   ]
 })
 
@@ -28,11 +28,14 @@ const filteredRows = computed(() => {
   return props.rows.filter((row) => {
     if (filterValues.value.cat && row.cat !== filterValues.value.cat) return false
     if (filterValues.value.event && row.eventType !== filterValues.value.event) return false
-    if (filterValues.value.date) {
-      const inputDate = new Date(filterValues.value.date + 'T00:00:00')
-      const rowDateKey = row.dateKey
-      const filterDateKey = toDateKey(inputDate)
-      if (rowDateKey !== filterDateKey) return false
+    const { start, end } = filterValues.value.date
+    if (start) {
+      const startDateKey = toDateKey(new Date(start + 'T00:00:00'))
+      if (row.dateKey < startDateKey) return false
+    }
+    if (end) {
+      const endDateKey = toDateKey(new Date(end + 'T00:00:00'))
+      if (row.dateKey > endDateKey) return false
     }
     return true
   })

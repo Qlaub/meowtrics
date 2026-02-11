@@ -1,5 +1,6 @@
 <script setup>
 import DropdownButton from '@/components/DropdownButton.vue'
+import DropdownDateRange from '@/components/DropdownDateRange.vue'
 
 const props = defineProps({
   filters: {
@@ -34,13 +35,11 @@ function updateFilter(key, value) {
         :testIdPrefix="'filter-' + filter.key"
         @update:modelValue="updateFilter(filter.key, $event)"
       />
-      <input
-        v-else-if="filter.type === 'date'"
-        type="date"
-        :id="'filter-' + filter.key"
-        :data-testid="'filter-' + filter.key"
-        :value="modelValue[filter.key]"
-        @input="updateFilter(filter.key, $event.target.value)"
+      <DropdownDateRange
+        v-else-if="filter.type === 'date_range'"
+        :modelValue="modelValue[filter.key] || { start: '', end: '' }"
+        :testIdPrefix="'filter-' + filter.key"
+        @update:modelValue="updateFilter(filter.key, $event)"
       />
     </div>
   </div>
@@ -63,15 +62,5 @@ function updateFilter(key, value) {
 .filter-group label {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
-}
-
-.filter-group input[type='date'] {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 6px;
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  font-size: 0.85rem;
-  min-height: 36px;
 }
 </style>
