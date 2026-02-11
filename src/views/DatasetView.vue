@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { loadManifest, getDataset } from '@/data/manifest.js'
 import { fetchCsv } from '@/data/csv.js'
@@ -7,6 +7,7 @@ import { normalizeLunchLog } from '@/data/lunchLog.js'
 import { normalizeWeightLog } from '@/data/weightLog.js'
 import { normalizeEventLog } from '@/data/eventLog.js'
 import { filterByRange } from '@/data/dates.js'
+import DropdownButton from '@/components/DropdownButton.vue'
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue'
 import WeightLogDashboard from '@/components/WeightLogDashboard.vue'
 import EventLogDashboard from '@/components/EventLogDashboard.vue'
@@ -17,33 +18,12 @@ const rows = ref([])
 const loading = ref(true)
 const error = ref(null)
 const range = ref('all')
-const dropdownOpen = ref(false)
-const dropdownRef = ref(null)
 
 const rangeOptions = [
   { value: '30', label: 'Last 30 days' },
   { value: '90', label: 'Last 90 days' },
   { value: 'all', label: 'All time' },
 ]
-
-const activeLabel = computed(() => {
-  const opt = rangeOptions.find((o) => o.value === range.value)
-  return opt ? opt.label : 'All time'
-})
-
-function selectRange(value) {
-  range.value = value
-  dropdownOpen.value = false
-}
-
-function handleClickOutside(e) {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
-    dropdownOpen.value = false
-  }
-}
-
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
 async function load(id) {
   loading.value = true
@@ -95,27 +75,11 @@ const filteredRows = computed(() => {
     <template v-else-if="dataset">
       <h1>{{ dataset.cat }} — {{ dataset.title }}</h1>
 
-      <div ref="dropdownRef" class="range-dropdown" data-testid="date-filter">
-        <button
-          class="dropdown-trigger"
-          data-testid="dropdown-trigger"
-          @click="dropdownOpen = !dropdownOpen"
-        >
-          <span>{{ activeLabel }}</span>
-          <span class="dropdown-arrow">▾</span>
-        </button>
-        <div v-if="dropdownOpen" class="dropdown-menu">
-          <button
-            v-for="opt in rangeOptions"
-            :key="opt.value"
-            :class="{ active: range === opt.value }"
-            :data-testid="'filter-' + opt.value"
-            @click="selectRange(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-      </div>
+      <DropdownButton
+        v-model="range"
+        :options="rangeOptions"
+        data-testid="date-filter"
+      />
 
       <div v-if="filteredRows.length === 0" class="empty">No data in this range</div>
 
@@ -139,59 +103,6 @@ const filteredRows = computed(() => {
 .dataset-view h1 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-}
-
-.range-dropdown {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.dropdown-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 1rem;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 6px;
-  background: var(--color-bg-primary);
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--color-text-primary);
-}
-
-.dropdown-arrow {
-  font-size: 0.75rem;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  min-width: 100%;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 6px;
-  background: var(--color-bg-primary);
-  overflow: hidden;
-}
-
-.dropdown-menu button {
-  width: 100%;
-  padding: 0.6rem 1rem;
-  min-height: 44px;
-  border: none;
-  background: var(--color-bg-primary);
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--color-text-primary);
-  text-align: left;
-}
-
-.dropdown-menu button.active {
-  background: var(--color-accent-primary);
-  color: var(--color-on-accent);
 }
 
 .loading,
