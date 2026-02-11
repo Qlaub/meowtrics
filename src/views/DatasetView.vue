@@ -5,9 +5,11 @@ import { loadManifest, getDataset } from '@/data/manifest.js'
 import { fetchCsv } from '@/data/csv.js'
 import { normalizeLunchLog } from '@/data/lunchLog.js'
 import { normalizeWeightLog } from '@/data/weightLog.js'
+import { normalizeEventLog } from '@/data/eventLog.js'
 import { filterByRange } from '@/data/dates.js'
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue'
 import WeightLogDashboard from '@/components/WeightLogDashboard.vue'
+import EventLogDashboard from '@/components/EventLogDashboard.vue'
 
 const route = useRoute()
 const dataset = ref(null)
@@ -56,8 +58,10 @@ async function load(id) {
     const raw = await fetchCsv(dataset.value.file)
     if (dataset.value.type === 'lunch_log') {
       rows.value = normalizeLunchLog(raw)
-    } else {
+    } else if (dataset.value.type === 'weight_log') {
       rows.value = normalizeWeightLog(raw)
+    } else if (dataset.value.type === 'event_log') {
+      rows.value = normalizeEventLog(raw)
     }
   } catch {
     error.value = 'Failed to load dataset'
@@ -121,6 +125,10 @@ const filteredRows = computed(() => {
       />
       <WeightLogDashboard
         v-else-if="dataset.type === 'weight_log'"
+        :rows="filteredRows"
+      />
+      <EventLogDashboard
+        v-else-if="dataset.type === 'event_log'"
         :rows="filteredRows"
       />
     </template>

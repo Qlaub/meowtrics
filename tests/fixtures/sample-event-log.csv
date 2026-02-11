@@ -1,0 +1,4 @@
+cat,event_type,description,timestamp
+Obi,Vet visit,Annual checkup,2026-01-15T10:00:00-05:00
+Cummings,Vet visit,Dental cleaning,2026-01-20T14:30:00-05:00
+Obi,Medication,Started new supplement,2026-02-01T09:00:00-05:00

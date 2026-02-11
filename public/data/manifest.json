@@ -22,5 +22,13 @@
     "type": "weight_log",
     "cat": "Obi",
     "description": "Daily weight measurements"
+  },
+  {
+    "id": "cat-event-log",
+    "title": "Event Log",
+    "file": "/data/cat_event_log",
+    "type": "event_log",
+    "cat": "Both",
+    "description": "Vet visits and health events for Obi and Cummings"
   }
 ]
