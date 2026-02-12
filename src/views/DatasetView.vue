@@ -102,6 +102,7 @@ const filteredEventRows = computed((): NormalizedEventLogEntry[] => {
         v-model="range"
         :options="rangeOptions"
         data-testid="date-filter"
+        maxWidth="8rem"
       />
 
       <div v-if="filteredRows.length === 0" class="empty">No data in this range</div>

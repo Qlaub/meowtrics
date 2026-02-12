@@ -18,6 +18,9 @@ interface Filter {
   label: string
   type: 'select' | 'date_range'
   options?: (string | DropdownOption)[]
+  width?: string
+  minWidth?: string
+  maxWidth?: string
 }
 
 const props = defineProps<{
@@ -50,6 +53,9 @@ function updateFilter(key: string, value: string | DateRange): void {
         :options="buildDropdownOptions(filter.options)"
         :modelValue="modelValue[filter.key] as string"
         :testIdPrefix="'filter-' + filter.key"
+        :width="filter.width"
+        :minWidth="filter.minWidth"
+        :maxWidth="filter.maxWidth"
         @update:modelValue="updateFilter(filter.key, $event)"
       />
       <DropdownDateRange

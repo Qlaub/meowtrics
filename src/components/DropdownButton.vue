@@ -12,6 +12,9 @@ const props = withDefaults(
     options: DropdownOption[]
     modelValue: string
     testIdPrefix?: string
+    width?: string
+    minWidth?: string
+    maxWidth?: string
   }>(),
   {
     testIdPrefix: 'filter',
@@ -31,6 +34,14 @@ const activeLabel = computed(() => {
   return opt.displayLabel || opt.label
 })
 
+const dropdownStyle = computed(() => {
+  const style: Record<string, string> = {}
+  if (props.width) style.width = props.width
+  if (props.minWidth) style.minWidth = props.minWidth
+  if (props.maxWidth) style.maxWidth = props.maxWidth
+  return style
+})
+
 function selectOption(value: string): void {
   emit('update:modelValue', value)
   dropdownOpen.value = false
@@ -47,7 +58,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <template>
-  <div ref="dropdownRef" class="range-dropdown">
+  <div ref="dropdownRef" class="range-dropdown" :style="dropdownStyle">
     <button
       class="dropdown-trigger"
       data-testid="dropdown-trigger"
@@ -78,6 +89,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .dropdown-trigger {
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   padding: 0.4rem 1rem;
   border: 1px solid var(--color-border-subtle);
@@ -86,6 +98,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--color-text-primary);
+  width: 100%;
 }
 
 .dropdown-arrow {

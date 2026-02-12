@@ -41,8 +41,8 @@ const filterDefinitions = computed(() => {
   }))
 
   return [
-    { key: 'cat', label: 'Cat', type: 'select' as const, options: catOptions },
-    { key: 'event', label: 'Event', type: 'select' as const, options: eventOptions },
+    { key: 'cat', label: 'Cat', type: 'select' as const, options: catOptions, minWidth: '6rem' },
+    { key: 'event', label: 'Event', type: 'select' as const, options: eventOptions, minWidth: '6rem' },
     { key: 'date', label: 'Date', type: 'date_range' as const },
   ]
 })

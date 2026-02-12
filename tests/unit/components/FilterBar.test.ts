@@ -168,3 +168,51 @@ describe('FilterBar reusability', () => {
     expect(wrapper.find('[data-testid="filter-date-end"]').exists()).toBe(true);
   });
 });
+
+describe('FilterBar width props pass-through', () => {
+  it('passes width prop to DropdownButton when specified in filter', () => {
+    const filterWithWidth = { ...selectFilter, width: '200px' };
+    const wrapper = mountFilterBar([filterWithWidth], { color: '' });
+    const container = wrapper.find('.range-dropdown');
+    expect(container.attributes('style')).toContain('width: 200px');
+  });
+
+  it('passes minWidth prop to DropdownButton when specified in filter', () => {
+    const filterWithMinWidth = { ...selectFilter, minWidth: '150px' };
+    const wrapper = mountFilterBar([filterWithMinWidth], { color: '' });
+    const container = wrapper.find('.range-dropdown');
+    expect(container.attributes('style')).toContain('min-width: 150px');
+  });
+
+  it('passes maxWidth prop to DropdownButton when specified in filter', () => {
+    const filterWithMaxWidth = { ...selectFilter, maxWidth: '300px' };
+    const wrapper = mountFilterBar([filterWithMaxWidth], { color: '' });
+    const container = wrapper.find('.range-dropdown');
+    expect(container.attributes('style')).toContain('max-width: 300px');
+  });
+
+  it('passes multiple width props to DropdownButton', () => {
+    const filterWithWidths = { ...selectFilter, minWidth: '100px', maxWidth: '400px' };
+    const wrapper = mountFilterBar([filterWithWidths], { color: '' });
+    const container = wrapper.find('.range-dropdown');
+    const style = container.attributes('style');
+    expect(style).toContain('min-width: 100px');
+    expect(style).toContain('max-width: 400px');
+  });
+
+  it('different filters can have different width configurations', () => {
+    const filter1 = { key: 'cat', label: 'Cat', type: 'select', options: ['A', 'B'], width: '180px' };
+    const filter2 = { key: 'event', label: 'Event', type: 'select', options: ['X', 'Y'], minWidth: '120px' };
+    const wrapper = mountFilterBar([filter1, filter2], { cat: '', event: '' });
+    const containers = wrapper.findAll('.range-dropdown');
+    expect(containers[0].attributes('style')).toContain('width: 180px');
+    expect(containers[1].attributes('style')).toContain('min-width: 120px');
+  });
+
+  it('does not apply width styles when no width props in filter definition', () => {
+    const wrapper = mountFilterBar([selectFilter], { color: '' });
+    const container = wrapper.find('.range-dropdown');
+    const style = container.attributes('style');
+    expect(style === undefined || style === '').toBe(true);
+  });
+});

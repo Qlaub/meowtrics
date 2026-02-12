@@ -196,4 +196,48 @@ describe('DropdownButton', () => {
       expect(wrapper.find('.dropdown-menu').exists()).toBe(true);
     });
   });
+
+  describe('width props', () => {
+    it('applies width prop to the container element', () => {
+      wrapper = mountDropdown({ width: '200px' });
+      const container = wrapper.find('.range-dropdown');
+      expect(container.attributes('style')).toContain('width: 200px');
+    });
+
+    it('applies minWidth prop to the container element', () => {
+      wrapper = mountDropdown({ minWidth: '150px' });
+      const container = wrapper.find('.range-dropdown');
+      expect(container.attributes('style')).toContain('min-width: 150px');
+    });
+
+    it('applies maxWidth prop to the container element', () => {
+      wrapper = mountDropdown({ maxWidth: '300px' });
+      const container = wrapper.find('.range-dropdown');
+      expect(container.attributes('style')).toContain('max-width: 300px');
+    });
+
+    it('applies multiple width props together', () => {
+      wrapper = mountDropdown({ minWidth: '100px', maxWidth: '400px' });
+      const container = wrapper.find('.range-dropdown');
+      const style = container.attributes('style');
+      expect(style).toContain('min-width: 100px');
+      expect(style).toContain('max-width: 400px');
+    });
+
+    it('applies all three width props together', () => {
+      wrapper = mountDropdown({ width: '250px', minWidth: '200px', maxWidth: '300px' });
+      const container = wrapper.find('.range-dropdown');
+      const style = container.attributes('style');
+      expect(style).toContain('width: 250px');
+      expect(style).toContain('min-width: 200px');
+      expect(style).toContain('max-width: 300px');
+    });
+
+    it('does not apply width styles when no width props are provided', () => {
+      wrapper = mountDropdown();
+      const container = wrapper.find('.range-dropdown');
+      const style = container.attributes('style');
+      expect(style === undefined || style === '').toBe(true);
+    });
+  });
 });
