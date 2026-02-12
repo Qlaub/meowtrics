@@ -253,8 +253,8 @@ describe('EventLogDashboard edge cases', () => {
     const filters = filterBar.props('filters');
     const catFilter = filters.find((f) => f.key === 'cat');
     const eventFilter = filters.find((f) => f.key === 'event');
-    expect(catFilter.options).toEqual(['Cummings', 'Obi']);
-    expect(eventFilter.options).toEqual(['Medication', 'Vet visit']);
+    expect(catFilter.options.map((o) => o.value)).toEqual(['Cummings', 'Obi']);
+    expect(eventFilter.options.map((o) => o.value)).toEqual(['Medication', 'Vet visit']);
   });
 
   it('filter options are empty when rows are empty', () => {
@@ -263,5 +263,41 @@ describe('EventLogDashboard edge cases', () => {
     const filters = filterBar.props('filters');
     const catFilter = filters.find((f) => f.key === 'cat');
     expect(catFilter.options).toEqual([]);
+  });
+});
+
+describe('EventLogDashboard display labels', () => {
+  it('cat filter options include displayLabel with "Cat: " prefix', () => {
+    const wrapper = mountDashboard();
+    const filterBar = wrapper.findComponent(FilterBar);
+    const filters = filterBar.props('filters');
+    const catFilter = filters.find((f) => f.key === 'cat');
+
+    const catOption = catFilter.options.find((o) => o.value === 'Obi');
+    expect(catOption).toBeDefined();
+    expect(catOption.label).toBe('Obi');
+    expect(catOption.displayLabel).toBe('Cat: Obi');
+  });
+
+  it('event filter options include displayLabel with "Event: " prefix', () => {
+    const wrapper = mountDashboard();
+    const filterBar = wrapper.findComponent(FilterBar);
+    const filters = filterBar.props('filters');
+    const eventFilter = filters.find((f) => f.key === 'event');
+
+    const eventOption = eventFilter.options.find((o) => o.value === 'Vet visit');
+    expect(eventOption).toBeDefined();
+    expect(eventOption.label).toBe('Vet visit');
+    expect(eventOption.displayLabel).toBe('Event: Vet visit');
+  });
+
+  it('date filter is unaffected and has no options', () => {
+    const wrapper = mountDashboard();
+    const filterBar = wrapper.findComponent(FilterBar);
+    const filters = filterBar.props('filters');
+    const dateFilter = filters.find((f) => f.key === 'date');
+
+    expect(dateFilter.type).toBe('date_range');
+    expect(dateFilter.options).toBeUndefined();
   });
 });

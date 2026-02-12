@@ -52,13 +52,6 @@ describe('FilterBar rendering', () => {
     expect(startInput.element.type).toBe('date');
     expect(endInput.element.type).toBe('date');
   });
-
-  it('renders labels for each filter', () => {
-    const wrapper = mountFilterBar();
-    const labels = wrapper.findAll('label');
-    expect(labels.some((l) => l.text() === 'Color')).toBe(true);
-    expect(labels.some((l) => l.text() === 'Date')).toBe(true);
-  });
 });
 
 describe('FilterBar interaction', () => {

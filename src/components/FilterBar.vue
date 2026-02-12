@@ -45,7 +45,6 @@ function updateFilter(key: string, value: string | DateRange): void {
 <template>
   <div class="filter-bar" data-testid="filter-bar">
     <div v-for="filter in filters" :key="filter.key" class="filter-group">
-      <label :for="'filter-' + filter.key">{{ filter.label }}</label>
       <DropdownButton
         v-if="filter.type === 'select'"
         :options="buildDropdownOptions(filter.options)"
@@ -75,10 +74,5 @@ function updateFilter(key: string, value: string | DateRange): void {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-}
-
-.filter-group label {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
 }
 </style>
