@@ -12,7 +12,7 @@ test.describe('Responsive Layout', () => {
     });
   });
 
-  test('header collapses on mobile', async ({ page, viewport }) => {
+  test('header collapses on mobile', async ({ page }) => {
     await page.goto('/');
 
     // Hamburger menu toggle should be visible at all viewport sizes (mobile-first design)

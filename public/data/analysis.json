@@ -1,0 +1,28 @@
+{
+  "least-represented-couplings": [
+    [
+      "Gravy - Natural Beef Recipe",
+      "Gravy - Natural White Meat Chicken Recipe"
+    ],
+    [
+      "Gravy - Natural Beef Recipe",
+      "Pate - Natural Beef Recipe"
+    ],
+    [
+      "Gravy - Natural Beef Recipe",
+      "Pate - Natural Wild Alaskan Salmon Recipe"
+    ],
+    [
+      "Gravy - Natural White Meat Chicken Recipe",
+      "Pate - Natural Beef Recipe"
+    ],
+    [
+      "Gravy - Natural White Meat Chicken Recipe",
+      "Pate - Natural Wild Alaskan Salmon Recipe"
+    ],
+    [
+      "Pate - Natural Beef Recipe",
+      "Pate - Natural Wild Alaskan Salmon Recipe"
+    ]
+  ]
+}

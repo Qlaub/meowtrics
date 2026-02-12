@@ -1,28 +1,43 @@
-<script setup>
+<script setup lang="ts">
 import DropdownButton from '@/components/DropdownButton.vue'
 import DropdownDateRange from '@/components/DropdownDateRange.vue'
 
-const props = defineProps({
-  filters: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-})
+interface DropdownOption {
+  value: string
+  label: string
+  displayLabel?: string
+}
 
-const emit = defineEmits(['update:modelValue'])
+interface DateRange {
+  start: string
+  end: string
+}
 
-function buildDropdownOptions(options) {
+interface Filter {
+  key: string
+  label: string
+  type: 'select' | 'date_range'
+  options?: (string | DropdownOption)[]
+}
+
+const props = defineProps<{
+  filters: Filter[]
+  modelValue: Record<string, string | DateRange>
+}>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: Record<string, string | DateRange>]
+}>()
+
+function buildDropdownOptions(options: (string | DropdownOption)[] | undefined): DropdownOption[] {
+  if (!options) return [{ value: '', label: 'All' }]
   return [
     { value: '', label: 'All' },
     ...options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o)),
   ]
 }
 
-function updateFilter(key, value) {
+function updateFilter(key: string, value: string | DateRange): void {
   emit('update:modelValue', { ...props.modelValue, [key]: value })
 }
 </script>
@@ -34,13 +49,13 @@ function updateFilter(key, value) {
       <DropdownButton
         v-if="filter.type === 'select'"
         :options="buildDropdownOptions(filter.options)"
-        :modelValue="modelValue[filter.key]"
+        :modelValue="modelValue[filter.key] as string"
         :testIdPrefix="'filter-' + filter.key"
         @update:modelValue="updateFilter(filter.key, $event)"
       />
       <DropdownDateRange
         v-else-if="filter.type === 'date_range'"
-        :modelValue="modelValue[filter.key] || { start: '', end: '' }"
+        :modelValue="(modelValue[filter.key] as DateRange) || { start: '', end: '' }"
         :testIdPrefix="'filter-' + filter.key"
         @update:modelValue="updateFilter(filter.key, $event)"
       />

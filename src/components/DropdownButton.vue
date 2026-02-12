@@ -1,25 +1,29 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const props = defineProps({
-  options: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  },
-  testIdPrefix: {
-    type: String,
-    default: 'filter',
-  },
-})
+interface DropdownOption {
+  value: string
+  label: string
+  displayLabel?: string
+}
 
-const emit = defineEmits(['update:modelValue'])
+const props = withDefaults(
+  defineProps<{
+    options: DropdownOption[]
+    modelValue: string
+    testIdPrefix?: string
+  }>(),
+  {
+    testIdPrefix: 'filter',
+  }
+)
 
-const dropdownOpen = ref(false)
-const dropdownRef = ref(null)
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
+const dropdownOpen = ref<boolean>(false)
+const dropdownRef = ref<HTMLElement | null>(null)
 
 const activeLabel = computed(() => {
   const opt = props.options.find((o) => o.value === props.modelValue)
@@ -27,13 +31,13 @@ const activeLabel = computed(() => {
   return opt.displayLabel || opt.label
 })
 
-function selectOption(value) {
+function selectOption(value: string): void {
   emit('update:modelValue', value)
   dropdownOpen.value = false
 }
 
-function handleClickOutside(e) {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+function handleClickOutside(e: MouseEvent): void {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
     dropdownOpen.value = false
   }
 }

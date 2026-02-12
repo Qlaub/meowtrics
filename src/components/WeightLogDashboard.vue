@@ -1,40 +1,48 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import type { EChartsOption } from 'echarts'
 import EChart from './EChart.vue'
-import { dailyAverages, weeklyChanges } from '@/data/weightLog.js'
-import { useChartTheme } from '@/composables/useChartTheme.js'
-import { useDeviceContextStore } from '@/stores/deviceContext.js'
+import { dailyAverages, weeklyChanges } from '@/data/weightLog'
+import type { NormalizedWeightLogEntry, DailyWeightAverage, WeeklyWeightChange } from '@/types/weightLog'
+import { useChartTheme } from '@/composables/useChartTheme'
+import { useDeviceContextStore } from '@/stores/deviceContext'
 
-const props = defineProps({
-  rows: { type: Array, required: true },
-})
+const props = defineProps<{
+  rows: NormalizedWeightLogEntry[]
+}>()
 
 const { tokens, tooltipStyle, axisStyle } = useChartTheme()
 const deviceContext = useDeviceContextStore()
 
-const daily = computed(() => dailyAverages(props.rows))
-const weekly = computed(() => weeklyChanges(daily.value))
+function getToken(key: string): string {
+  return tokens.value[key] ?? ''
+}
+
+const daily = computed((): DailyWeightAverage[] => dailyAverages(props.rows))
+const weekly = computed((): WeeklyWeightChange[] => weeklyChanges(daily.value))
 const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 50,
   right: deviceContext.isMobileViewport ? 5 : 20,
 }))
-const axisLabelSize = computed(() => (deviceContext.isMobileViewport ? 7 : 10))
-const axisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
+const axisLabelSize = computed((): number => (deviceContext.isMobileViewport ? 7 : 10))
+const axisRotate = computed((): number => (deviceContext.isMobileViewport ? 60 : 45))
 
-const chartTitle = (text) => ({
+const chartTitle = (text: string) => ({
   text,
   left: 'center',
-  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 18 },
+  textStyle: { color: getToken('--color-accent-secondary'), fontSize: 18 },
 })
 
-const lineOption = computed(() => {
+const lineOption = computed((): EChartsOption => {
   return {
     title: chartTitle('Weight Over Time'),
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
-      formatter(params) {
-        const p = params[0]
+      formatter(params: unknown) {
+        const paramsArray = params as Array<{ name: string; value: number }>
+        const p = paramsArray[0]
+        if (!p) return ''
         return `${p.name}<br/>Weight: ${p.value} lbs`
       },
     },
@@ -48,13 +56,13 @@ const lineOption = computed(() => {
         rotate: axisRotate.value,
         fontSize: axisLabelSize.value,
         interval: 0,
-        color: tokens.value['--color-text-secondary'],
+        color: getToken('--color-text-secondary'),
       },
     },
     yAxis: {
       type: 'value',
       name: 'lbs',
-      nameTextStyle: { color: tokens.value['--color-text-secondary'] },
+      nameTextStyle: { color: getToken('--color-text-secondary') },
       scale: true,
       ...axisStyle.value,
     },
@@ -65,20 +73,22 @@ const lineOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        itemStyle: { color: tokens.value['--color-chart-series-3'] },
+        itemStyle: { color: getToken('--color-chart-series-3') },
       },
     ],
   }
 })
 
-const weeklyOption = computed(() => {
+const weeklyOption = computed((): EChartsOption => {
   return {
     title: chartTitle('Weekly Weight Change'),
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
-      formatter(params) {
-        const p = params[0]
+      formatter(params: unknown) {
+        const paramsArray = params as Array<{ name: string; value: number }>
+        const p = paramsArray[0]
+        if (!p) return ''
         const sign = p.value >= 0 ? '+' : ''
         return `Week of ${p.name}<br/>Change: ${sign}${p.value} lbs`
       },
@@ -93,13 +103,13 @@ const weeklyOption = computed(() => {
         rotate: axisRotate.value,
         fontSize: axisLabelSize.value,
         interval: 0,
-        color: tokens.value['--color-text-secondary'],
+        color: getToken('--color-text-secondary'),
       },
     },
     yAxis: {
       type: 'value',
       name: 'lbs',
-      nameTextStyle: { color: tokens.value['--color-text-secondary'] },
+      nameTextStyle: { color: getToken('--color-text-secondary') },
       ...axisStyle.value,
     },
     series: [
@@ -109,8 +119,8 @@ const weeklyOption = computed(() => {
           value: w.change,
           itemStyle: {
             color: w.change >= 0
-              ? tokens.value['--color-chart-series-2']
-              : tokens.value['--color-chart-series-7'],
+              ? getToken('--color-chart-series-2')
+              : getToken('--color-chart-series-7'),
           },
         })),
       },

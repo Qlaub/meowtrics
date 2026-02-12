@@ -1,55 +1,73 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import type { EChartsOption } from 'echarts'
 import EChart from './EChart.vue'
-import { aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog.js'
-import { useChartTheme } from '@/composables/useChartTheme.js'
-import { useDeviceContextStore } from '@/stores/deviceContext.js'
+import { aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog'
+import type { NormalizedLunchLogEntry, CanStats, HeadToHeadData } from '@/types/lunchLog'
+import { useChartTheme } from '@/composables/useChartTheme'
+import { useDeviceContextStore } from '@/stores/deviceContext'
 
-const props = defineProps({
-  rows: { type: Array, required: true },
-})
+const props = defineProps<{
+  rows: NormalizedLunchLogEntry[]
+}>()
 
 const { tokens, seriesColors, tooltipStyle, axisStyle } = useChartTheme()
 const deviceContext = useDeviceContextStore()
 
-function parseRgb(str) {
+type RGB = [number, number, number]
+
+function parseRgb(str: string): RGB {
   const m = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
-  return m ? [+m[1], +m[2], +m[3]] : [0, 0, 0]
+  if (!m) return [0, 0, 0]
+  const r = m[1]
+  const g = m[2]
+  const b = m[3]
+  return [r ? +r : 0, g ? +g : 0, b ? +b : 0]
 }
 
-function lerpColor(a, b, t) {
+function lerpColor(a: RGB, b: RGB, t: number): RGB {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
 }
 
-function relativeLuminance([r, g, b]) {
-  const [rs, gs, bs] = [r / 255, g / 255, b / 255].map((c) =>
+function relativeLuminance([r, g, b]: RGB): number {
+  const normalized = [r / 255, g / 255, b / 255].map((c) =>
     c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4,
   )
+  const rs = normalized[0] ?? 0
+  const gs = normalized[1] ?? 0
+  const bs = normalized[2] ?? 0
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
 
-function contrastTextColor(bgRgb) {
+function contrastTextColor(bgRgb: RGB): string {
   const lum = relativeLuminance(bgRgb)
   return lum > 0.179 ? '#000' : '#fff'
 }
 
-const agg = computed(() => aggregateLunchLog(props.rows))
-const h2h = computed(() => buildHeadToHead(props.rows))
-const barAxisLabelSize = computed(() => (deviceContext.isMobileViewport ? 7 : 10))
-const barAxisRotate = computed(() => (deviceContext.isMobileViewport ? 60 : 45))
+const agg = computed((): CanStats[] => aggregateLunchLog(props.rows))
+const h2h = computed((): HeadToHeadData => buildHeadToHead(props.rows))
+const barAxisLabelSize = computed((): number => (deviceContext.isMobileViewport ? 7 : 10))
+const barAxisRotate = computed((): number => (deviceContext.isMobileViewport ? 60 : 45))
 const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 40,
   right: deviceContext.isMobileViewport ? 5 : 20,
 }))
-const pieRadius = computed(() =>
+const pieRadius = computed((): [string, string] =>
   deviceContext.isMobileViewport ? ['20%', '50%'] : ['30%', '65%'],
 )
-const pieLabelFontSize = computed(() => (deviceContext.isMobileViewport ? 9 : 11))
+const pieLabelFontSize = computed((): number => (deviceContext.isMobileViewport ? 9 : 11))
 
-function shortName(name) {
+function getToken(key: string): string {
+  return tokens.value[key] ?? ''
+}
+
+function shortName(name: string): string {
   const match = name.match(/^(Pate|Gravy) - Natural (.+?) Recipe$/)
   if (match) {
-    const [, type, food] = match
+    const type = match[1]
+    const food = match[2]
+    if (!type || !food) return name
+
     if (food === 'White Meat Chicken') {
       if (deviceContext.isMobileViewport) {
         return type === 'Pate' ? 'Chicken (p)' : 'Chicken (g)'
@@ -69,13 +87,13 @@ function shortName(name) {
   return name
 }
 
-const chartTitle = (text) => ({
+const chartTitle = (text: string) => ({
   text,
   left: 'center',
-  textStyle: { color: tokens.value['--color-accent-secondary'], fontSize: 18 },
+  textStyle: { color: getToken('--color-accent-secondary'), fontSize: 18 },
 })
 
-const doubleBarOption = computed(() => {
+const doubleBarOption = computed((): EChartsOption => {
   const names = agg.value.map((c) => shortName(c.name))
   return {
     title: chartTitle('Offered vs Selected'),
@@ -83,13 +101,18 @@ const doubleBarOption = computed(() => {
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
-      formatter(params) {
-        const idx = params[0].dataIndex
-        const full = agg.value[idx].name
-        return `<b>${full}</b><br/>` + params.map((p) => `${p.seriesName}: ${p.value}`).join('<br/>')
+      formatter(params: unknown) {
+        const paramsArray = params as Array<{ dataIndex: number; seriesName: string; value: number }>
+        const firstParam = paramsArray[0]
+        if (!firstParam) return ''
+        const idx = firstParam.dataIndex
+        const can = agg.value[idx]
+        if (!can) return ''
+        const full = can.name
+        return `<b>${full}</b><br/>` + paramsArray.map((p) => `${p.seriesName}: ${p.value}`).join('<br/>')
       },
     },
-    legend: { data: ['Offered', 'Selected'], bottom: 20, textStyle: { color: tokens.value['--color-text-secondary'] } },
+    legend: { data: ['Offered', 'Selected'], bottom: 20, textStyle: { color: getToken('--color-text-secondary') } },
     grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 45, containLabel: true },
     xAxis: {
       type: 'category',
@@ -100,7 +123,7 @@ const doubleBarOption = computed(() => {
         rotate: barAxisRotate.value,
         fontSize: barAxisLabelSize.value,
         interval: 0,
-        color: tokens.value['--color-text-secondary'],
+        color: getToken('--color-text-secondary'),
       },
     },
     yAxis: { type: 'value', ...axisStyle.value },
@@ -111,7 +134,7 @@ const doubleBarOption = computed(() => {
   }
 })
 
-const rateOption = computed(() => {
+const rateOption = computed((): EChartsOption => {
   const names = agg.value.map((c) => shortName(c.name))
   const rates = agg.value.map((c) => (c.offered ? +((c.selected / c.offered) * 100).toFixed(1) : 0))
   return {
@@ -119,11 +142,15 @@ const rateOption = computed(() => {
     tooltip: {
       trigger: 'axis',
       ...tooltipStyle.value,
-      formatter(params) {
-        const idx = params[0].dataIndex
-        const full = agg.value[idx].name
-        const c = agg.value[idx]
-        return `<b>${full}</b><br/>Selection rate: ${params[0].value}%<br/>(${c.selected}/${c.offered})`
+      formatter(params: unknown) {
+        const paramsArray = params as Array<{ dataIndex: number; value: number }>
+        const firstParam = paramsArray[0]
+        if (!firstParam) return ''
+        const idx = firstParam.dataIndex
+        const can = agg.value[idx]
+        if (!can) return ''
+        const full = can.name
+        return `<b>${full}</b><br/>Selection rate: ${firstParam.value}%<br/>(${can.selected}/${can.offered})`
       },
     },
     grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
@@ -136,21 +163,21 @@ const rateOption = computed(() => {
         rotate: barAxisRotate.value,
         fontSize: barAxisLabelSize.value,
         interval: 0,
-        color: tokens.value['--color-text-secondary'],
+        color: getToken('--color-text-secondary'),
       },
     },
-    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: tokens.value['--color-text-secondary'] }, ...axisStyle.value },
+    yAxis: { type: 'value', max: 100, ...axisStyle.value, axisLabel: { ...axisStyle.value.axisLabel, formatter: '{value}%' } },
     series: [
       {
         type: 'bar',
         data: rates,
-        itemStyle: { color: tokens.value['--color-chart-series-1'] },
+        itemStyle: { color: getToken('--color-chart-series-1') },
       },
     ],
   }
 })
 
-const pieOption = computed(() => {
+const pieOption = computed((): EChartsOption => {
   return {
     title: chartTitle('Selection Share'),
     color: seriesColors.value,
@@ -168,7 +195,7 @@ const pieOption = computed(() => {
           .map((c) => ({ name: shortName(c.name), value: c.selected })),
         label: {
           fontSize: pieLabelFontSize.value,
-          color: tokens.value['--color-text-secondary'],
+          color: getToken('--color-text-secondary'),
           overflow: 'break',
           minMargin: 5,
         },
@@ -177,33 +204,45 @@ const pieOption = computed(() => {
   }
 })
 
-function heatmapCellColor(pct) {
-  const stops = [
-    parseRgb(tokens.value['--color-chart-heatmap-high']),
-    parseRgb(tokens.value['--color-chart-heatmap-mid']),
-    parseRgb(tokens.value['--color-chart-heatmap-low']),
+interface CellColors {
+  bg: string
+  text: string
+}
+
+function heatmapCellColor(pct: number): CellColors {
+  const stops: RGB[] = [
+    parseRgb(getToken('--color-chart-heatmap-high')),
+    parseRgb(getToken('--color-chart-heatmap-mid')),
+    parseRgb(getToken('--color-chart-heatmap-low')),
   ]
   const t = pct / 100
-  const bg =
-    t <= 0.5
-      ? lerpColor(stops[0], stops[1], t * 2)
-      : lerpColor(stops[1], stops[2], (t - 0.5) * 2)
+  const stop0 = stops[0] ?? [0, 0, 0]
+  const stop1 = stops[1] ?? [0, 0, 0]
+  const stop2 = stops[2] ?? [0, 0, 0]
+  const bg = t <= 0.5 ? lerpColor(stop0, stop1, t * 2) : lerpColor(stop1, stop2, (t - 0.5) * 2)
   const bgStr = `rgb(${Math.round(bg[0])}, ${Math.round(bg[1])}, ${Math.round(bg[2])})`
   const text = contrastTextColor(bg)
   return { bg: bgStr, text }
 }
 
-const heatmapOption = computed(() => {
+const heatmapOption = computed((): EChartsOption => {
   const { names, matchups } = h2h.value
   const short = names.map(shortName)
 
   // Pre-compute colors for each cell so we can use them in the formatter
-  const cellColors = {}
-  const seriesData = []
+  const cellColors: Record<string, CellColors> = {}
+  const seriesData: Array<{
+    value: [number, number, number]
+    itemStyle: { color: string }
+    emphasis: { itemStyle: { color: string; borderColor: string; borderWidth: number } }
+  }> = []
   for (let i = 0; i < names.length; i++) {
     for (let j = 0; j < names.length; j++) {
       if (i === j) continue
-      const m = matchups[names[i]]?.[names[j]]
+      const nameI = names[i]
+      const nameJ = names[j]
+      if (!nameI || !nameJ) continue
+      const m = matchups[nameI]?.[nameJ]
       const pct = m && m.total > 0 ? +((m.wins / m.total) * 100).toFixed(0) : null
       if (pct === null) continue
       const colors = heatmapCellColor(pct)
@@ -220,28 +259,30 @@ const heatmapOption = computed(() => {
     title: chartTitle('Head-to-Head'),
     tooltip: {
       ...tooltipStyle.value,
-      formatter(params) {
-        const [j, i, val] = params.data?.value ?? params.value
-        const a = names[i]
-        const b = names[j]
+      formatter(params: unknown) {
+        const p = params as { data?: { value: [number, number, number] }; value: [number, number, number] }
+        const [j, i, val] = p.data?.value ?? p.value
+        const a = names[i ?? 0]
+        const b = names[j ?? 0]
+        if (!a || !b) return ''
         const m = matchups[a]?.[b]
         if (!m) return ''
-        return `<b>${shortName(a)} vs ${shortName(b)}</b><br/>${m.wins}/${m.total} (${val}%)`
+        return `<b>${shortName(a)} vs ${shortName(b)}</b><br/>${m.wins}/${m.total} (${val ?? 0}%)`
       },
     },
     grid: { left: gridMargin.value.left, right: gridMargin.value.right, bottom: 20, containLabel: true },
     xAxis: {
       type: 'category',
       data: short,
-      axisLabel: { rotate: 45, fontSize: 10, color: tokens.value['--color-text-secondary'] },
-      axisLine: { lineStyle: { color: tokens.value['--color-chart-axis'] } },
+      axisLabel: { rotate: 45, fontSize: 10, color: getToken('--color-text-secondary') },
+      axisLine: { lineStyle: { color: getToken('--color-chart-axis') } },
       position: 'bottom',
     },
     yAxis: {
       type: 'category',
       data: short,
-      axisLabel: { fontSize: 10, color: tokens.value['--color-text-secondary'] },
-      axisLine: { lineStyle: { color: tokens.value['--color-chart-axis'] } },
+      axisLabel: { fontSize: 10, color: getToken('--color-text-secondary') },
+      axisLine: { lineStyle: { color: getToken('--color-chart-axis') } },
     },
     visualMap: {
       min: 0,
@@ -249,9 +290,9 @@ const heatmapOption = computed(() => {
       show: false,
       inRange: {
         color: [
-          tokens.value['--color-chart-heatmap-high'],
-          tokens.value['--color-chart-heatmap-mid'],
-          tokens.value['--color-chart-heatmap-low'],
+          getToken('--color-chart-heatmap-high'),
+          getToken('--color-chart-heatmap-mid'),
+          getToken('--color-chart-heatmap-low'),
         ],
       },
     },
@@ -261,8 +302,9 @@ const heatmapOption = computed(() => {
         data: seriesData,
         label: {
           show: true,
-          formatter(params) {
-            const [j, i, pct] = params.data?.value ?? params.value
+          formatter(params: unknown) {
+            const p = params as { data?: { value: [number, number, number] }; value: [number, number, number] }
+            const [j, i, pct] = p.data?.value ?? p.value
             return `{c${j}_${i}|${pct}%}`
           },
           rich: Object.fromEntries(

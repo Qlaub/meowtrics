@@ -1,30 +1,46 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import { toDateKey } from '@/data/dates.js'
+import { toDateKey } from '@/data/dates'
+import type { NormalizedEventLogEntry } from '@/types/eventLog'
 import FilterBar from './FilterBar.vue'
 
-const props = defineProps({
-  rows: {
-    type: Array,
-    required: true,
-  },
-})
+const props = defineProps<{
+  rows: NormalizedEventLogEntry[]
+}>()
 
-const sortColumn = ref('timestamp')
-const sortDirection = ref('desc')
-const filterValues = ref({ cat: '', event: '', date: { start: '', end: '' } })
+type SortColumn = 'timestamp' | 'cat' | 'eventType' | 'description'
+type SortDirection = 'asc' | 'desc'
+
+interface FilterValues {
+  cat: string
+  event: string
+  date: {
+    start: string
+    end: string
+  }
+}
+
+const sortColumn = ref<SortColumn>('timestamp')
+const sortDirection = ref<SortDirection>('desc')
+const filterValues = ref<FilterValues>({ cat: '', event: '', date: { start: '', end: '' } })
 
 const filterDefinitions = computed(() => {
   const cats = [...new Set(props.rows.map((r) => r.cat))].sort()
   const events = [...new Set(props.rows.map((r) => r.eventType))].sort()
   return [
-    { key: 'cat', label: 'Cat', type: 'select', options: cats },
-    { key: 'event', label: 'Event', type: 'select', options: events },
-    { key: 'date', label: 'Date', type: 'date_range' },
+    { key: 'cat', label: 'Cat', type: 'select' as const, options: cats },
+    { key: 'event', label: 'Event', type: 'select' as const, options: events },
+    { key: 'date', label: 'Date', type: 'date_range' as const },
   ]
 })
 
-const filteredRows = computed(() => {
+const filterBarModelValue = computed(() => filterValues.value as unknown as Record<string, string | { start: string; end: string }>)
+
+function updateFilters(newValues: unknown): void {
+  filterValues.value = newValues as FilterValues
+}
+
+const filteredRows = computed((): NormalizedEventLogEntry[] => {
   return props.rows.filter((row) => {
     if (filterValues.value.cat && row.cat !== filterValues.value.cat) return false
     if (filterValues.value.event && row.eventType !== filterValues.value.event) return false
@@ -41,18 +57,18 @@ const filteredRows = computed(() => {
   })
 })
 
-const sortedRows = computed(() => {
+const sortedRows = computed((): NormalizedEventLogEntry[] => {
   const col = sortColumn.value
   const dir = sortDirection.value === 'asc' ? 1 : -1
   return [...filteredRows.value].sort((a, b) => {
     if (col === 'timestamp') {
-      return (a.timestamp - b.timestamp) * dir
+      return (a.timestamp.getTime() - b.timestamp.getTime()) * dir
     }
     return String(a[col]).localeCompare(String(b[col])) * dir
   })
 })
 
-function toggleSort(column) {
+function toggleSort(column: SortColumn): void {
   if (sortColumn.value === column) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
   } else {
@@ -61,12 +77,12 @@ function toggleSort(column) {
   }
 }
 
-function sortIndicator(column) {
+function sortIndicator(column: SortColumn): string {
   if (sortColumn.value !== column) return ''
-  return sortDirection.value === 'asc' ? ' \u25B4' : ' \u25BE'
+  return sortDirection.value === 'asc' ? ' ▴' : ' ▾'
 }
 
-function formatDateTime(date) {
+function formatDateTime(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
   const y = date.getFullYear()
@@ -82,8 +98,8 @@ function formatDateTime(date) {
   <div class="event-log-dashboard" data-testid="event-log-dashboard">
     <FilterBar
       :filters="filterDefinitions"
-      :model-value="filterValues"
-      @update:model-value="filterValues = $event"
+      :model-value="filterBarModelValue"
+      @update:model-value="updateFilters"
     />
     <div class="table-wrapper">
       <table data-testid="event-log-table">

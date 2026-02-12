@@ -3,16 +3,60 @@ import Bowser from 'bowser'
 
 const RESIZE_DEBOUNCE_MS = 150
 
-function debounce(fn, ms) {
-  let timer
-  return (...args) => {
+interface BowserInfo {
+  platformType: string | null
+  browserName: string | null
+  browserVersion: string | null
+  osName: string | null
+  osVersion: string | null
+}
+
+interface ViewportInfo {
+  width: number
+  height: number
+}
+
+interface MediaInfo {
+  prefersCoarsePointer: boolean
+  prefersFinePointer: boolean
+  hoverNone: boolean
+  hoverHover: boolean
+}
+
+interface FeaturesInfo {
+  hasTouchPoints: boolean
+}
+
+interface DeviceContextState {
+  ua: string
+  bowser: BowserInfo
+  viewport: ViewportInfo
+  media: MediaInfo
+  features: FeaturesInfo
+}
+
+type DeviceClass = 'mobile' | 'tablet' | 'desktop' | 'unknown'
+type ViewportClass = 'mobile' | 'tablet' | 'desktop'
+type InteractionMode = 'touch' | 'mouse' | 'mixed'
+
+interface MediaQueryListener {
+  mql: MediaQueryList
+  handler: (e: MediaQueryListEvent) => void
+}
+
+function debounce<T extends (...args: unknown[]) => void>(
+  fn: T,
+  ms: number
+): (...args: Parameters<T>) => void {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  return (...args: Parameters<T>) => {
     clearTimeout(timer)
     timer = setTimeout(() => fn(...args), ms)
   }
 }
 
 export const useDeviceContextStore = defineStore('deviceContext', {
-  state: () => ({
+  state: (): DeviceContextState => ({
     ua: '',
 
     bowser: {
@@ -41,7 +85,7 @@ export const useDeviceContextStore = defineStore('deviceContext', {
   }),
 
   getters: {
-    deviceClass(state) {
+    deviceClass(state): DeviceClass {
       const type = state.bowser.platformType
       if (type === 'mobile') return 'mobile'
       if (type === 'tablet') return 'tablet'
@@ -49,37 +93,47 @@ export const useDeviceContextStore = defineStore('deviceContext', {
       return 'unknown'
     },
 
-    viewportClass(state) {
+    viewportClass(state): ViewportClass {
       if (state.viewport.width < 768) return 'mobile'
       if (state.viewport.width < 1024) return 'tablet'
       return 'desktop'
     },
 
-    interactionMode(state) {
+    interactionMode(state): InteractionMode {
       if (state.media.prefersCoarsePointer && state.media.hoverNone) return 'touch'
       if (state.media.prefersFinePointer && state.media.hoverHover) return 'mouse'
       return 'mixed'
     },
 
-    isMobileDevice() {
+    isMobileDevice(): boolean {
       return this.deviceClass === 'mobile'
     },
 
-    isMobileViewport() {
+    isMobileViewport(): boolean {
       return this.viewportClass === 'mobile'
     },
 
-    isTouchPreferred(state) {
+    isTouchPreferred(state): boolean {
       return state.media.prefersCoarsePointer
     },
 
-    shouldUseMobileInteractions() {
+    shouldUseMobileInteractions(): boolean {
       return this.interactionMode !== 'mouse'
     },
   },
 
   actions: {
-    init() {
+    init(this: {
+      ua: string
+      bowser: BowserInfo
+      viewport: ViewportInfo
+      media: MediaInfo
+      features: FeaturesInfo
+      _updateViewport: () => void
+      _evalMedia: () => void
+      _debouncedResize?: (...args: unknown[]) => void
+      _mediaListeners?: MediaQueryListener[]
+    }) {
       // Parse UA
       this.ua = navigator.userAgent
       const browser = Bowser.getParser(this.ua)
@@ -104,7 +158,7 @@ export const useDeviceContextStore = defineStore('deviceContext', {
       window.addEventListener('orientationchange', this._debouncedResize)
 
       this._mediaListeners = []
-      const queries = {
+      const queries: Record<string, (v: boolean) => void> = {
         '(pointer: coarse)': (v) => (this.media.prefersCoarsePointer = v),
         '(pointer: fine)': (v) => (this.media.prefersFinePointer = v),
         '(hover: none)': (v) => (this.media.hoverNone = v),
@@ -112,18 +166,18 @@ export const useDeviceContextStore = defineStore('deviceContext', {
       }
       for (const [query, setter] of Object.entries(queries)) {
         const mql = window.matchMedia(query)
-        const handler = (e) => setter(e.matches)
+        const handler = (e: MediaQueryListEvent) => setter(e.matches)
         mql.addEventListener('change', handler)
         this._mediaListeners.push({ mql, handler })
       }
     },
 
-    _updateViewport() {
+    _updateViewport(this: { viewport: ViewportInfo }) {
       this.viewport.width = window.innerWidth
       this.viewport.height = window.innerHeight
     },
 
-    _evalMedia() {
+    _evalMedia(this: { media: MediaInfo }) {
       this.media.prefersCoarsePointer = window.matchMedia('(pointer: coarse)').matches
       this.media.prefersFinePointer = window.matchMedia('(pointer: fine)').matches
       this.media.hoverNone = window.matchMedia('(hover: none)').matches

@@ -4,7 +4,7 @@ import {
   dailyAverages,
   weeklyChanges,
   calculateWeightTrend,
-} from '@/data/weightLog.js';
+} from '@/data/weightLog';
 
 describe('normalizeWeightLog', () => {
   it('converts raw rows to normalized format', () => {
@@ -199,7 +199,6 @@ describe('calculateWeightTrend', () => {
   it('small dataset (<14 points): uses first 7 and last 7 with overlap', () => {
     // 10 points: first 7 avg = (10+11+12+13+14+15+16)/7 = 13.0
     // last 7 avg = (14+15+16+17+18+19+20)/7 = 17.0 (overlap at indices 3-6)
-    const rows = makeRows([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
     // Wait, that's 11 points. Let me use exactly 10.
     const rows10 = makeRows([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
     // first 7: [10,11,12,13,14,15,16] avg = 13.0

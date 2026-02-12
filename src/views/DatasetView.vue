@@ -1,23 +1,29 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { loadManifest, getDataset } from '@/data/manifest.js'
-import { fetchCsv } from '@/data/csv.js'
-import { normalizeLunchLog } from '@/data/lunchLog.js'
-import { normalizeWeightLog } from '@/data/weightLog.js'
-import { normalizeEventLog } from '@/data/eventLog.js'
-import { filterByRange } from '@/data/dates.js'
+import { loadManifest, getDataset } from '@/data/manifest'
+import { fetchCsv } from '@/data/csv'
+import { normalizeLunchLog } from '@/data/lunchLog'
+import { normalizeWeightLog } from '@/data/weightLog'
+import { normalizeEventLog } from '@/data/eventLog'
+import { filterByRange } from '@/data/dates'
+import type { DatasetManifestEntry } from '@/types/manifest'
+import type { NormalizedLunchLogEntry } from '@/types/lunchLog'
+import type { NormalizedWeightLogEntry } from '@/types/weightLog'
+import type { NormalizedEventLogEntry } from '@/types/eventLog'
 import DropdownButton from '@/components/DropdownButton.vue'
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue'
 import WeightLogDashboard from '@/components/WeightLogDashboard.vue'
 import EventLogDashboard from '@/components/EventLogDashboard.vue'
 
+type NormalizedRow = NormalizedLunchLogEntry | NormalizedWeightLogEntry | NormalizedEventLogEntry
+
 const route = useRoute()
-const dataset = ref(null)
-const rows = ref([])
-const loading = ref(true)
-const error = ref(null)
-const range = ref('all')
+const dataset = ref<DatasetManifestEntry | undefined>(undefined)
+const rows = ref<NormalizedRow[]>([])
+const loading = ref<boolean>(true)
+const error = ref<string | null>(null)
+const range = ref<'all' | '30' | '90'>('all')
 
 const rangeOptions = [
   { value: '30', label: 'Last 30 days' },
@@ -25,12 +31,17 @@ const rangeOptions = [
   { value: 'all', label: 'All time' },
 ]
 
-async function load(id) {
+async function load(id: string | string[]): Promise<void> {
+  const datasetId = Array.isArray(id) ? id[0] : id
+  if (!datasetId) {
+    error.value = 'No dataset ID provided'
+    return
+  }
   loading.value = true
   error.value = null
   try {
     const manifest = await loadManifest()
-    dataset.value = getDataset(manifest, id)
+    dataset.value = getDataset(manifest, datasetId)
     if (!dataset.value) {
       error.value = 'Dataset not found'
       return
@@ -53,13 +64,25 @@ async function load(id) {
 watch(
   () => route.params.datasetId,
   (id) => {
-    if (id) load(id)
+    if (id !== undefined) load(id)
   },
   { immediate: true },
 )
 
-const filteredRows = computed(() => {
+const filteredRows = computed((): NormalizedRow[] => {
   return filterByRange(rows.value, 'timestamp', range.value)
+})
+
+const filteredLunchRows = computed((): NormalizedLunchLogEntry[] => {
+  return filteredRows.value as NormalizedLunchLogEntry[]
+})
+
+const filteredWeightRows = computed((): NormalizedWeightLogEntry[] => {
+  return filteredRows.value as NormalizedWeightLogEntry[]
+})
+
+const filteredEventRows = computed((): NormalizedEventLogEntry[] => {
+  return filteredRows.value as NormalizedEventLogEntry[]
 })
 </script>
 
@@ -69,7 +92,7 @@ const filteredRows = computed(() => {
 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="load(route.params.datasetId)">Retry</button>
+      <button v-if="route.params.datasetId" @click="load(route.params.datasetId)">Retry</button>
     </div>
 
     <template v-else-if="dataset">
@@ -85,15 +108,15 @@ const filteredRows = computed(() => {
 
       <LunchLogDashboard
         v-else-if="dataset.type === 'lunch_log'"
-        :rows="filteredRows"
+        :rows="filteredLunchRows"
       />
       <WeightLogDashboard
         v-else-if="dataset.type === 'weight_log'"
-        :rows="filteredRows"
+        :rows="filteredWeightRows"
       />
       <EventLogDashboard
         v-else-if="dataset.type === 'event_log'"
-        :rows="filteredRows"
+        :rows="filteredEventRows"
       />
     </template>
   </div>

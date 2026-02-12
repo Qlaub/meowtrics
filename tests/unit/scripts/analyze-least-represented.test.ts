@@ -5,7 +5,7 @@ import {
   findLeastRepresented,
   generatePairings,
   analyze,
-} from '../../../scripts/analyze-least-represented.js'
+} from '../../../scripts/analyze-least-represented.ts'
 
 describe('parseCsv', () => {
   it('parses valid lunch log CSV into row objects', () => {

@@ -9,18 +9,18 @@ function readVisualTestFile(filename) {
 }
 
 function getVisualSpecFiles() {
-  return readdirSync(visualDir).filter((f) => f.endsWith('.spec.js'));
+  return readdirSync(visualDir).filter((f) => f.endsWith('.spec.ts'));
 }
 
 describe('Visual test skip conditions', () => {
   it('desktop visual tests use isMobile to skip mobile viewports', () => {
-    const content = readVisualTestFile('charts-desktop.spec.js');
+    const content = readVisualTestFile('charts-desktop.spec.ts');
     expect(content).toContain('isMobile');
     expect(content).toMatch(/test\.skip\(\(\{.*isMobile.*\}\)\s*=>\s*isMobile\)/);
   });
 
   it('mobile visual tests use isMobile to skip non-mobile viewports', () => {
-    const content = readVisualTestFile('charts-mobile.spec.js');
+    const content = readVisualTestFile('charts-mobile.spec.ts');
     expect(content).toContain('isMobile');
     expect(content).toMatch(/test\.skip\(\(\{.*isMobile.*\}\)\s*=>\s*!isMobile\)/);
   });

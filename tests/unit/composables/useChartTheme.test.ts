@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useChartTheme } from '@/composables/useChartTheme.js';
+import { useChartTheme } from '@/composables/useChartTheme';
 
 function setup() {
   setActivePinia(createPinia());

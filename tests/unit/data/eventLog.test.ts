@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { parseCsv } from '@/data/csv.js';
-import { getDataset } from '@/data/manifest.js';
-import { normalizeEventLog } from '@/data/eventLog.js';
+import { parseCsv } from '@/data/csv';
+import { getDataset } from '@/data/manifest';
+import { normalizeEventLog } from '@/data/eventLog';
 
 const fixturesDir = resolve(import.meta.dirname, '../../fixtures');
 const dataDir = resolve(import.meta.dirname, '../../../public/data');

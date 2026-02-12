@@ -5,6 +5,8 @@
  * No raw RGB literals should appear in the token block below.
  */
 
+import type { Theme } from '@/types/theme'
+
 const palette = {
   black1: 'rgb(39, 38, 42)',
   black2: 'rgb(41, 34, 31)',
@@ -30,7 +32,7 @@ const extended = {
   pinkLight: 'rgb(230, 190, 195)',
 }
 
-export default {
+const cummingsTheme: Theme = {
   id: 'cummings',
   name: 'Cummings',
   tokens: {
@@ -78,3 +80,5 @@ export default {
     '--color-chart-series-8': extended.grey,
   },
 }
+
+export default cummingsTheme

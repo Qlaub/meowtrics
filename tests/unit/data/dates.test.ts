@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toDateKey, filterByRange } from '@/data/dates.js';
+import { toDateKey, filterByRange } from '@/data/dates';
 
 describe('toDateKey', () => {
   it('formats date as MM/DD/YYYY', () => {

@@ -1,21 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-  testIdPrefix: {
-    type: String,
-    default: 'date-range',
-  },
-})
+interface DateRange {
+  start: string
+  end: string
+}
 
-const emit = defineEmits(['update:modelValue'])
+const props = withDefaults(
+  defineProps<{
+    modelValue: DateRange
+    testIdPrefix?: string
+  }>(),
+  {
+    testIdPrefix: 'date-range',
+  }
+)
 
-const dropdownOpen = ref(false)
-const dropdownRef = ref(null)
+const emit = defineEmits<{
+  'update:modelValue': [value: DateRange]
+}>()
+
+const dropdownOpen = ref<boolean>(false)
+const dropdownRef = ref<HTMLElement | null>(null)
 
 const triggerLabel = computed(() => {
   const { start, end } = props.modelValue
@@ -25,12 +31,12 @@ const triggerLabel = computed(() => {
   return 'Select dates'
 })
 
-function updateDate(field, value) {
+function updateDate(field: keyof DateRange, value: string): void {
   emit('update:modelValue', { ...props.modelValue, [field]: value })
 }
 
-function handleClickOutside(e) {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+function handleClickOutside(e: MouseEvent): void {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
     dropdownOpen.value = false
   }
 }
@@ -55,13 +61,13 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           type="date"
           :data-testid="testIdPrefix + '-start'"
           :value="modelValue.start"
-          @input="updateDate('start', $event.target.value)"
+          @input="updateDate('start', ($event.target as HTMLInputElement).value)"
         />
         <input
           type="date"
           :data-testid="testIdPrefix + '-end'"
           :value="modelValue.end"
-          @input="updateDate('end', $event.target.value)"
+          @input="updateDate('end', ($event.target as HTMLInputElement).value)"
         />
       </div>
     </div>

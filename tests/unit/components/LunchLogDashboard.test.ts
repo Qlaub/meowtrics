@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue';
-import { useDeviceContextStore } from '@/stores/deviceContext.js';
+import { useDeviceContextStore } from '@/stores/deviceContext';
 
 const EChartStub = {
   name: 'EChart',

@@ -1,15 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { loadManifest, groupBycat } from '@/data/manifest.js'
-import { fetchCsv } from '@/data/csv.js'
-import { normalizeWeightLog, calculateWeightTrend } from '@/data/weightLog.js'
+import { loadManifest, groupBycat } from '@/data/manifest'
+import { fetchCsv } from '@/data/csv'
+import { normalizeWeightLog, calculateWeightTrend } from '@/data/weightLog'
+import type { DatasetManifestEntry } from '@/types/manifest'
+import type { WeightTrend } from '@/data/weightLog'
 
-const manifest = ref([])
-const error = ref(null)
-const loading = ref(true)
-const trends = reactive({})
+const manifest = ref<DatasetManifestEntry[]>([])
+const error = ref<string | null>(null)
+const loading = ref<boolean>(true)
+const trends = reactive<Record<string, WeightTrend>>({})
 
-async function load() {
+async function load(): Promise<void> {
   try {
     manifest.value = await loadManifest()
     loadTrends()
@@ -20,7 +22,7 @@ async function load() {
   }
 }
 
-async function loadTrends() {
+async function loadTrends(): Promise<void> {
   const weightDatasets = manifest.value.filter((d) => d.type === 'weight_log')
   for (const ds of weightDatasets) {
     try {
@@ -34,15 +36,15 @@ async function loadTrends() {
   }
 }
 
-function trendArrow(direction) {
-  if (direction === 'down') return '\u2193'
-  if (direction === 'up') return '\u2191'
+function trendArrow(direction: 'up' | 'down' | 'equal'): string {
+  if (direction === 'down') return '↓'
+  if (direction === 'up') return '↑'
   return '='
 }
 
 load()
 
-const grouped = () => groupBycat(manifest.value)
+const grouped = (): Record<string, DatasetManifestEntry[]> => groupBycat(manifest.value)
 </script>
 
 <template>

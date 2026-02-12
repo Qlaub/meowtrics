@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCsv } from '@/data/csv.js';
+import { parseCsv } from '@/data/csv';
 
 describe('parseCsv', () => {
   it('parses CSV text into array of row objects', () => {

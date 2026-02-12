@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
-import { loadManifest, groupBycat } from '@/data/manifest.js'
+import { loadManifest, groupBycat } from '@/data/manifest'
 import { useDeviceContextStore } from '@/stores/deviceContext.js'
 import { useThemeStore } from '@/stores/themeStore.js'
 import ThemeSwitch from '@/components/ThemeSwitch.vue'

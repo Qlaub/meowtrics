@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeLunchLog, aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog.js';
+import { normalizeLunchLog, aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog';
 
 describe('normalizeLunchLog', () => {
   it('converts raw rows to normalized format with Date and dateKey', () => {
