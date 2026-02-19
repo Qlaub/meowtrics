@@ -14,3 +14,19 @@ export function contrastTextColor(bgRgb: RGB): string {
   const lum = relativeLuminance(bgRgb)
   return lum > 0.179 ? '#000' : '#fff'
 }
+
+/** Parses an `rgb(r, g, b)` string into an RGB tuple. */
+export function parseRgb(color: string): RGB {
+  const match = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/)
+  if (!match) throw new Error(`Cannot parse color: ${color}`)
+  return [Number(match[1]), Number(match[2]), Number(match[3])]
+}
+
+/**
+ * Returns either `darkColor` or `lightColor` — whichever is more legible
+ * against `bgRgb` — using WCAG relative luminance.
+ */
+export function contrastPaletteColor(bgRgb: RGB, darkColor: string, lightColor: string): string {
+  const lum = relativeLuminance(bgRgb)
+  return lum > 0.179 ? darkColor : lightColor
+}

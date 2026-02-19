@@ -160,9 +160,14 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   text-align: left;
 }
 
+.dropdown-menu button:hover:not(.active) {
+  background: var(--color-hover-bg);
+  color: var(--color-on-hover);
+}
+
 .dropdown-menu button.active {
-  background: var(--color-accent-primary);
-  color: var(--color-on-accent);
+  background: var(--color-selected-bg);
+  color: var(--color-on-selected);
 }
 
 .checkbox {

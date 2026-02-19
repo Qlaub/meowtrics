@@ -6,6 +6,7 @@
  */
 
 import type { Theme } from '@/types/theme'
+import { contrastPaletteColor, parseRgb } from '@/utils/colorContrast'
 
 const palette = {
   black1: 'rgb(39, 38, 42)',
@@ -56,6 +57,14 @@ const cummingsTheme: Theme = {
     '--color-border-subtle': borderMix,
     '--color-border-strong': palette.cream,
     '--color-focus-ring': extended.blue,
+
+    // Hover state (e.g. DropdownMultiSelect item hover)
+    '--color-hover-bg': palette.rose,
+    '--color-on-hover': contrastPaletteColor(parseRgb(palette.rose), palette.black2, palette.white2),
+
+    // Selected item (e.g. DropdownMultiSelect active state)
+    '--color-selected-bg': extended.pinkDark,
+    '--color-on-selected': contrastPaletteColor(parseRgb(extended.pinkDark), palette.black2, palette.white2),
 
     // Charts
     '--color-chart-bg': palette.black2,
