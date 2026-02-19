@@ -30,14 +30,11 @@ describe('FilterBar rendering', () => {
     expect(wrapper.find('[data-testid="filter-date-end"]').exists()).toBe(true);
   });
 
-  it('select filter shows "All" as first option plus provided options', async () => {
+  it('select filter shows provided options without automatic "All"', async () => {
     const wrapper = mountFilterBar();
     await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
-    const allOption = wrapper.find('[data-testid="filter-color-"]');
     const redOption = wrapper.find('[data-testid="filter-color-Red"]');
     const blueOption = wrapper.find('[data-testid="filter-color-Blue"]');
-    expect(allOption.exists()).toBe(true);
-    expect(allOption.text()).toBe('All');
     expect(redOption.exists()).toBe(true);
     expect(redOption.text()).toBe('Red');
     expect(blueOption.exists()).toBe(true);
@@ -90,11 +87,20 @@ describe('FilterBar interaction', () => {
     });
   });
 
-  it('selecting "All" resets that filter key to empty string', async () => {
-    const wrapper = mountFilterBar([selectFilter], { color: 'Red' });
+  it('selecting explicit "All" option sets filter to its value', async () => {
+    const filterWithExplicitAll = {
+      key: 'cat',
+      label: 'Cat',
+      type: 'select',
+      options: [
+        { value: '', label: 'All: Cats' },
+        { value: 'obi', label: 'Obi' },
+      ],
+    };
+    const wrapper = mountFilterBar([filterWithExplicitAll], { cat: 'obi' });
     await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
-    await wrapper.find('[data-testid="filter-color-"]').trigger('click');
-    expect(wrapper.emitted('update:modelValue')[0][0]).toEqual({ color: '' });
+    await wrapper.find('[data-testid="filter-cat-"]').trigger('click');
+    expect(wrapper.emitted('update:modelValue')[0][0]).toEqual({ cat: '' });
   });
 });
 
@@ -112,11 +118,8 @@ describe('FilterBar option objects with displayLabel', () => {
   it('preserves displayLabel when options are objects', async () => {
     const wrapper = mountFilterBar([objectOptionsFilter], { cat: '' });
     await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
-    const allOption = wrapper.find('[data-testid="filter-cat-"]');
     const obiOption = wrapper.find('[data-testid="filter-cat-obi"]');
     const cummingsOption = wrapper.find('[data-testid="filter-cat-cummings"]');
-    expect(allOption.exists()).toBe(true);
-    expect(allOption.text()).toBe('All');
     expect(obiOption.exists()).toBe(true);
     expect(obiOption.text()).toBe('Obi');
     expect(cummingsOption.exists()).toBe(true);

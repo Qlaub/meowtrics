@@ -10,7 +10,7 @@ interface DropdownOption {
 const props = withDefaults(
   defineProps<{
     options: DropdownOption[]
-    modelValue: string
+    modelValue: string[]
     title?: string
     testIdPrefix?: string
     width?: string
@@ -23,21 +23,26 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string[]]
 }>()
 
 const dropdownOpen = ref<boolean>(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
 const activeLabel = computed(() => {
-  const opt = props.options.find((o) => o.value === props.modelValue)
-  if (!opt) {
-    if (props.title && props.modelValue === '') {
-      return `All: ${props.title}`
-    }
-    return ''
+  if (props.modelValue.length === 0) {
+    return props.title ? `All: ${props.title}` : 'All'
   }
-  return opt.displayLabel || opt.label
+  if (props.modelValue.length === 1) {
+    const opt = props.options.find((o) => o.value === props.modelValue[0])
+    if (!opt) return ''
+    return opt.displayLabel || opt.label
+  }
+  // Multiple selections
+  const firstOpt = props.options.find((o) => o.value === props.modelValue[0])
+  if (!firstOpt) return ''
+  const firstLabel = firstOpt.displayLabel || firstOpt.label
+  return `${firstLabel}...`
 })
 
 const dropdownStyle = computed(() => {
@@ -48,9 +53,23 @@ const dropdownStyle = computed(() => {
   return style
 })
 
-function selectOption(value: string): void {
-  emit('update:modelValue', value)
-  dropdownOpen.value = false
+function toggleOption(value: string): void {
+  const currentSelections = [...props.modelValue]
+  const index = currentSelections.indexOf(value)
+
+  if (index >= 0) {
+    // Remove from selection
+    currentSelections.splice(index, 1)
+  } else {
+    // Add to selection
+    currentSelections.push(value)
+  }
+
+  emit('update:modelValue', currentSelections)
+}
+
+function isSelected(value: string): boolean {
+  return props.modelValue.includes(value)
 }
 
 function handleClickOutside(e: MouseEvent): void {
@@ -77,11 +96,12 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       <button
         v-for="opt in options"
         :key="opt.value"
-        :class="{ active: modelValue === opt.value }"
+        :class="{ active: isSelected(opt.value) }"
         :data-testid="testIdPrefix + '-' + opt.value"
-        @click="selectOption(opt.value)"
+        @click="toggleOption(opt.value)"
       >
-        {{ opt.label }}
+        <span class="checkbox">{{ isSelected(opt.value) ? '☑' : '☐' }}</span>
+        <span>{{ opt.label }}</span>
       </button>
     </div>
   </div>
@@ -126,6 +146,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 }
 
 .dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.6rem 1rem;
   min-height: 44px;
@@ -140,5 +163,10 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .dropdown-menu button.active {
   background: var(--color-accent-primary);
   color: var(--color-on-accent);
+}
+
+.checkbox {
+  font-size: 1rem;
+  line-height: 1;
 }
 </style>

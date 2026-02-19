@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DropdownButton from '@/components/DropdownButton.vue'
 import DropdownDateRange from '@/components/DropdownDateRange.vue'
+import DropdownMultiSelect from '@/components/DropdownMultiSelect.vue'
 
 interface DropdownOption {
   value: string
@@ -16,8 +17,9 @@ interface DateRange {
 interface Filter {
   key: string
   label: string
-  type: 'select' | 'date_range'
+  type: 'select' | 'multi_select' | 'date_range'
   options?: (string | DropdownOption)[]
+  title?: string
   width?: string
   minWidth?: string
   maxWidth?: string
@@ -25,22 +27,19 @@ interface Filter {
 
 const props = defineProps<{
   filters: Filter[]
-  modelValue: Record<string, string | DateRange>
+  modelValue: Record<string, string | string[] | DateRange>
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: Record<string, string | DateRange>]
+  'update:modelValue': [value: Record<string, string | string[] | DateRange>]
 }>()
 
 function buildDropdownOptions(options: (string | DropdownOption)[] | undefined): DropdownOption[] {
-  if (!options) return [{ value: '', label: 'All' }]
-  return [
-    { value: '', label: 'All' },
-    ...options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o)),
-  ]
+  if (!options) return []
+  return options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o))
 }
 
-function updateFilter(key: string, value: string | DateRange): void {
+function updateFilter(key: string, value: string | string[] | DateRange): void {
   emit('update:modelValue', { ...props.modelValue, [key]: value })
 }
 </script>
@@ -52,6 +51,18 @@ function updateFilter(key: string, value: string | DateRange): void {
         v-if="filter.type === 'select'"
         :options="buildDropdownOptions(filter.options)"
         :modelValue="modelValue[filter.key] as string"
+        :title="filter.title"
+        :testIdPrefix="'filter-' + filter.key"
+        :width="filter.width"
+        :minWidth="filter.minWidth"
+        :maxWidth="filter.maxWidth"
+        @update:modelValue="updateFilter(filter.key, $event)"
+      />
+      <DropdownMultiSelect
+        v-else-if="filter.type === 'multi_select'"
+        :options="buildDropdownOptions(filter.options)"
+        :modelValue="(modelValue[filter.key] as string[]) || []"
+        :title="filter.title"
         :testIdPrefix="'filter-' + filter.key"
         :width="filter.width"
         :minWidth="filter.minWidth"

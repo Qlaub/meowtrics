@@ -13,7 +13,7 @@ type SortDirection = 'asc' | 'desc'
 
 interface FilterValues {
   cat: string
-  event: string
+  event: string[]
   date: {
     start: string
     end: string
@@ -22,17 +22,20 @@ interface FilterValues {
 
 const sortColumn = ref<SortColumn>('timestamp')
 const sortDirection = ref<SortDirection>('desc')
-const filterValues = ref<FilterValues>({ cat: '', event: '', date: { start: '', end: '' } })
+const filterValues = ref<FilterValues>({ cat: '', event: [], date: { start: '', end: '' } })
 
 const filterDefinitions = computed(() => {
   const cats = [...new Set(props.rows.map((r) => r.cat))].sort()
   const events = [...new Set(props.rows.map((r) => r.eventType))].sort()
 
-  const catOptions = cats.map((cat) => ({
-    value: cat,
-    label: cat,
-    displayLabel: `Cat: ${cat}`,
-  }))
+  const catOptions = [
+    { value: '', label: 'All cats', displayLabel: 'All: Cats' },
+    ...cats.map((cat) => ({
+      value: cat,
+      label: cat,
+      displayLabel: `Cat: ${cat}`,
+    }))
+  ]
 
   const eventOptions = events.map((event) => ({
     value: event,
@@ -42,12 +45,12 @@ const filterDefinitions = computed(() => {
 
   return [
     { key: 'cat', label: 'Cat', type: 'select' as const, options: catOptions, minWidth: '6rem' },
-    { key: 'event', label: 'Event', type: 'select' as const, options: eventOptions, minWidth: '6rem' },
+    { key: 'event', label: 'Event', type: 'multi_select' as const, options: eventOptions, minWidth: '6rem', title: 'Events' },
     { key: 'date', label: 'Date', type: 'date_range' as const },
   ]
 })
 
-const filterBarModelValue = computed(() => filterValues.value as unknown as Record<string, string | { start: string; end: string }>)
+const filterBarModelValue = computed(() => filterValues.value as unknown as Record<string, string | string[] | { start: string; end: string }>)
 
 function updateFilters(newValues: unknown): void {
   filterValues.value = newValues as FilterValues
@@ -56,7 +59,7 @@ function updateFilters(newValues: unknown): void {
 const filteredRows = computed((): NormalizedEventLogEntry[] => {
   return props.rows.filter((row) => {
     if (filterValues.value.cat && row.cat !== filterValues.value.cat) return false
-    if (filterValues.value.event && row.eventType !== filterValues.value.event) return false
+    if (filterValues.value.event.length > 0 && !filterValues.value.event.includes(row.eventType)) return false
     const { start, end } = filterValues.value.date
     if (start) {
       const startDateKey = toDateKey(new Date(start + 'T00:00:00'))
