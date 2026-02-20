@@ -12,7 +12,7 @@ type SortColumn = 'timestamp' | 'cat' | 'eventType' | 'description'
 type SortDirection = 'asc' | 'desc'
 
 interface FilterValues {
-  cat: string
+  cat: string[]
   event: string[]
   date: {
     start: string
@@ -22,7 +22,7 @@ interface FilterValues {
 
 const sortColumn = ref<SortColumn>('timestamp')
 const sortDirection = ref<SortDirection>('desc')
-const filterValues = ref<FilterValues>({ cat: '', event: [], date: { start: '', end: '' } })
+const filterValues = ref<FilterValues>({ cat: [], event: [], date: { start: '', end: '' } })
 
 const filterDefinitions = computed(() => {
   const cats = [...new Set(props.rows.map((r) => r.cat))].sort()
@@ -55,7 +55,7 @@ function updateFilters(newValues: unknown): void {
 
 const filteredRows = computed((): NormalizedEventLogEntry[] => {
   return props.rows.filter((row) => {
-    if (filterValues.value.cat && row.cat !== filterValues.value.cat) return false
+    if (filterValues.value.cat.length > 0 && !filterValues.value.cat.includes(row.cat)) return false
     if (filterValues.value.event.length > 0 && !filterValues.value.event.includes(row.eventType)) return false
     const { start, end } = filterValues.value.date
     if (start) {

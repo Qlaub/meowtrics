@@ -138,7 +138,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: 'Obi',
+      cat: ['Obi'],
       event: [],
       date: { start: '', end: '' },
     });
@@ -152,7 +152,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: '',
+      cat: [],
       event: ['Medication'],
       date: { start: '', end: '' },
     });
@@ -165,7 +165,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: '',
+      cat: [],
       event: [],
       date: { start: '2026-01-20', end: '' },
     });
@@ -178,7 +178,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: '',
+      cat: [],
       event: [],
       date: { start: '', end: '2026-01-20' },
     });
@@ -191,7 +191,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: '',
+      cat: [],
       event: [],
       date: { start: '2026-01-15', end: '2026-01-20' },
     });
@@ -207,7 +207,7 @@ describe('EventLogDashboard filtering', () => {
     const wrapper = mountDashboard();
     const filterBar = wrapper.findComponent(FilterBar);
     await filterBar.vm.$emit('update:modelValue', {
-      cat: 'Obi',
+      cat: ['Obi'],
       event: ['Vet visit'],
       date: { start: '', end: '' },
     });
@@ -223,7 +223,7 @@ describe('EventLogDashboard filtering', () => {
     const filterBar = wrapper.findComponent(FilterBar);
     // Apply filter
     await filterBar.vm.$emit('update:modelValue', {
-      cat: 'Obi',
+      cat: ['Obi'],
       event: [],
       date: { start: '', end: '' },
     });
@@ -231,7 +231,7 @@ describe('EventLogDashboard filtering', () => {
     expect(getTableRows(wrapper)).toHaveLength(2);
     // Clear filter
     await filterBar.vm.$emit('update:modelValue', {
-      cat: '',
+      cat: [],
       event: [],
       date: { start: '', end: '' },
     });
