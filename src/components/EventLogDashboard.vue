@@ -3,6 +3,14 @@ import { ref, computed } from 'vue'
 import { toDateKey } from '@/data/dates'
 import type { NormalizedEventLogEntry } from '@/types/eventLog'
 import FilterBar from './FilterBar.vue'
+import { approximateStringWidth } from '@/utils/stringWidth'
+
+function calcMinWidth(options: { label: string }[]): string {
+  if (options.length === 0) return '0rem'
+  const maxW = Math.max(...options.map((o) => approximateStringWidth(o.label)))
+  console.log(maxW)
+  return `${Math.min(maxW + 4, 12)}rem`
+}
 
 const props = defineProps<{
   rows: NormalizedEventLogEntry[]
@@ -41,8 +49,8 @@ const filterDefinitions = computed(() => {
   }))
 
   return [
-    { key: 'cat', label: 'Cat', type: 'multi_select' as const, options: catOptions, minWidth: '6rem', title: 'Cats' },
-    { key: 'event', label: 'Event', type: 'multi_select' as const, options: eventOptions, minWidth: '6rem', title: 'Events' },
+    { key: 'cat', label: 'Cat', type: 'multi_select' as const, options: catOptions, minWidth: calcMinWidth(catOptions), title: 'Cats' },
+    { key: 'event', label: 'Event', type: 'multi_select' as const, options: eventOptions, minWidth: calcMinWidth(eventOptions), title: 'Events' },
     { key: 'date', label: 'Date', type: 'date_range' as const },
   ]
 })
