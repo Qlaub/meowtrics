@@ -100,7 +100,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         :data-testid="testIdPrefix + '-' + opt.value"
         @click="toggleOption(opt.value)"
       >
-        <span class="checkbox">{{ isSelected(opt.value) ? '☑' : '☐' }}</span>
+        <span class="check-indicator" :class="{ selected: isSelected(opt.value) }"></span>
         <span>{{ opt.label }}</span>
       </button>
     </div>
@@ -170,8 +170,31 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   color: var(--color-on-selected);
 }
 
-.checkbox {
-  font-size: 1rem;
-  line-height: 1;
+.check-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--color-accent-primary);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.check-indicator.selected {
+  background: var(--color-accent-primary);
+}
+
+.check-indicator.selected::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--color-on-accent);
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
 }
 </style>
