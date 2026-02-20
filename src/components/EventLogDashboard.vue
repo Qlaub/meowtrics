@@ -28,14 +28,11 @@ const filterDefinitions = computed(() => {
   const cats = [...new Set(props.rows.map((r) => r.cat))].sort()
   const events = [...new Set(props.rows.map((r) => r.eventType))].sort()
 
-  const catOptions = [
-    { value: '', label: 'All cats', displayLabel: 'All: Cats' },
-    ...cats.map((cat) => ({
-      value: cat,
-      label: cat,
-      displayLabel: `Cat: ${cat}`,
-    }))
-  ]
+  const catOptions = cats.map((cat) => ({
+    value: cat,
+    label: cat,
+    displayLabel: `Cat: ${cat}`,
+  }))
 
   const eventOptions = events.map((event) => ({
     value: event,
@@ -44,7 +41,7 @@ const filterDefinitions = computed(() => {
   }))
 
   return [
-    { key: 'cat', label: 'Cat', type: 'select' as const, options: catOptions, minWidth: '6rem' },
+    { key: 'cat', label: 'Cat', type: 'multi_select' as const, options: catOptions, minWidth: '6rem', title: 'Cats' },
     { key: 'event', label: 'Event', type: 'multi_select' as const, options: eventOptions, minWidth: '6rem', title: 'Events' },
     { key: 'date', label: 'Date', type: 'date_range' as const },
   ]

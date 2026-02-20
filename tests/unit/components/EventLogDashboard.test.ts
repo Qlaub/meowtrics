@@ -253,7 +253,7 @@ describe('EventLogDashboard edge cases', () => {
     const filters = filterBar.props('filters');
     const catFilter = filters.find((f) => f.key === 'cat');
     const eventFilter = filters.find((f) => f.key === 'event');
-    expect(catFilter.options.map((o) => o.value)).toEqual(['', 'Cummings', 'Obi']);
+    expect(catFilter.options.map((o) => o.value)).toEqual(['Cummings', 'Obi']);
     expect(eventFilter.options.map((o) => o.value)).toEqual(['Medication', 'Vet visit']);
   });
 });
