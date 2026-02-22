@@ -2,12 +2,14 @@
 import { computed } from 'vue'
 import type { EChartsOption } from 'echarts'
 import EChart from './EChart.vue'
+import DropdownButton from './DropdownButton.vue'
 import { aggregateLunchLog, buildHeadToHead } from '@/data/lunchLog'
 import type { NormalizedLunchLogEntry, CanStats, HeadToHeadData } from '@/types/lunchLog'
 import { useChartTheme } from '@/composables/useChartTheme'
 import { useDeviceContextStore } from '@/stores/deviceContext'
 import { relativeLuminance, contrastTextColor } from '@/utils/colorContrast'
 import type { RGB } from '@/utils/colorContrast'
+import { useDateRangeFilter } from '@/composables/useDateRangeFilter'
 
 const props = defineProps<{
   rows: NormalizedLunchLogEntry[]
@@ -15,6 +17,7 @@ const props = defineProps<{
 
 const { tokens, seriesColors, tooltipStyle, axisStyle } = useChartTheme()
 const deviceContext = useDeviceContextStore()
+const { range, rangeOptions, filteredRows } = useDateRangeFilter(() => props.rows, 'timestamp')
 
 function parseRgb(str: string): RGB {
   const m = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
@@ -29,8 +32,8 @@ function lerpColor(a: RGB, b: RGB, t: number): RGB {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
 }
 
-const agg = computed((): CanStats[] => aggregateLunchLog(props.rows))
-const h2h = computed((): HeadToHeadData => buildHeadToHead(props.rows))
+const agg = computed((): CanStats[] => aggregateLunchLog(filteredRows.value))
+const h2h = computed((): HeadToHeadData => buildHeadToHead(filteredRows.value))
 const barAxisLabelSize = computed((): number => (deviceContext.isMobileViewport ? 7 : 10))
 const barAxisRotate = computed((): number => (deviceContext.isMobileViewport ? 60 : 45))
 const gridMargin = computed(() => ({
@@ -310,6 +313,16 @@ const heatmapOption = computed((): EChartsOption => {
 
 <template>
   <div class="dashboard" data-testid="lunch-dashboard">
+    <DropdownButton
+      v-model="range"
+      :options="rangeOptions"
+      data-testid="date-filter"
+      maxWidth="8rem"
+    />
+
+    <div v-if="filteredRows.length === 0" class="empty">No data in this range</div>
+
+    <template v-else>
     <section class="chart-section" data-testid="offered-selected-chart" aria-label="Offered vs Selected chart">
       <EChart :option="doubleBarOption" />
     </section>
@@ -325,6 +338,7 @@ const heatmapOption = computed((): EChartsOption => {
     <section class="chart-section" data-testid="heatmap-chart" aria-label="Head-to-Head chart">
       <EChart :option="heatmapOption" :height="Math.max(300, h2h.names.length * 50) + 'px'" />
     </section>
+    </template>
   </div>
 </template>
 
@@ -335,4 +349,9 @@ const heatmapOption = computed((): EChartsOption => {
   gap: 2rem;
 }
 
+.empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
 </style>

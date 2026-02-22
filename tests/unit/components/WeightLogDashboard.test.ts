@@ -187,11 +187,10 @@ describe('WeightLogDashboard edge cases', () => {
   it('renders with empty rows without errors, weekly section hidden', () => {
     const wrapper = mountDashboard([]);
     expect(wrapper.find('[data-testid="weight-dashboard"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="weight-line-chart"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(false);
 
-    const echarts = wrapper.findAllComponents({ name: 'EChart' });
-    const lineOption = echarts[0].props('option');
-    expect(lineOption.series[0].data).toHaveLength(0);
+    // With empty rows, the empty state is shown and charts are not rendered
+    expect(wrapper.find('.empty').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="weight-line-chart"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="weekly-change-chart"]').exists()).toBe(false);
   });
 });

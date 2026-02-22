@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import type { EChartsOption } from 'echarts'
 import EChart from './EChart.vue'
+import DropdownButton from './DropdownButton.vue'
 import { dailyAverages, weeklyChanges } from '@/data/weightLog'
 import type { NormalizedWeightLogEntry, DailyWeightAverage, WeeklyWeightChange } from '@/types/weightLog'
 import { useChartTheme } from '@/composables/useChartTheme'
 import { useDeviceContextStore } from '@/stores/deviceContext'
+import { useDateRangeFilter } from '@/composables/useDateRangeFilter'
 
 const props = defineProps<{
   rows: NormalizedWeightLogEntry[]
@@ -13,12 +15,13 @@ const props = defineProps<{
 
 const { tokens, tooltipStyle, axisStyle } = useChartTheme()
 const deviceContext = useDeviceContextStore()
+const { range, rangeOptions, filteredRows } = useDateRangeFilter(() => props.rows, 'timestamp')
 
 function getToken(key: string): string {
   return tokens.value[key] ?? ''
 }
 
-const daily = computed((): DailyWeightAverage[] => dailyAverages(props.rows))
+const daily = computed((): DailyWeightAverage[] => dailyAverages(filteredRows.value))
 const weekly = computed((): WeeklyWeightChange[] => weeklyChanges(daily.value))
 const gridMargin = computed(() => ({
   left: deviceContext.isMobileViewport ? 5 : 50,
@@ -131,13 +134,24 @@ const weeklyOption = computed((): EChartsOption => {
 
 <template>
   <div class="dashboard" data-testid="weight-dashboard">
-    <section class="chart-section" data-testid="weight-line-chart" aria-label="Weight Over Time chart">
-      <EChart :option="lineOption" />
-    </section>
+    <DropdownButton
+      v-model="range"
+      :options="rangeOptions"
+      data-testid="date-filter"
+      maxWidth="8rem"
+    />
 
-    <section v-if="weekly.length > 0" class="chart-section" data-testid="weekly-change-chart" aria-label="Weekly Weight Change chart">
-      <EChart :option="weeklyOption" />
-    </section>
+    <div v-if="filteredRows.length === 0" class="empty">No data in this range</div>
+
+    <template v-else>
+      <section class="chart-section" data-testid="weight-line-chart" aria-label="Weight Over Time chart">
+        <EChart :option="lineOption" />
+      </section>
+
+      <section v-if="weekly.length > 0" class="chart-section" data-testid="weekly-change-chart" aria-label="Weekly Weight Change chart">
+        <EChart :option="weeklyOption" />
+      </section>
+    </template>
   </div>
 </template>
 
@@ -148,4 +162,9 @@ const weeklyOption = computed((): EChartsOption => {
   gap: 2rem;
 }
 
+.empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
 </style>

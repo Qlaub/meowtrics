@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { loadManifest, getDataset } from '@/data/manifest'
 import { fetchCsv } from '@/data/csv'
 import { normalizeLunchLog } from '@/data/lunchLog'
 import { normalizeWeightLog } from '@/data/weightLog'
 import { normalizeEventLog } from '@/data/eventLog'
-import { filterByRange } from '@/data/dates'
 import type { DatasetManifestEntry } from '@/types/manifest'
 import type { NormalizedLunchLogEntry } from '@/types/lunchLog'
 import type { NormalizedWeightLogEntry } from '@/types/weightLog'
 import type { NormalizedEventLogEntry } from '@/types/eventLog'
-import DropdownButton from '@/components/DropdownButton.vue'
 import LunchLogDashboard from '@/components/LunchLogDashboard.vue'
 import WeightLogDashboard from '@/components/WeightLogDashboard.vue'
 import EventLogDashboard from '@/components/EventLogDashboard.vue'
@@ -23,13 +21,6 @@ const dataset = ref<DatasetManifestEntry | undefined>(undefined)
 const rows = ref<NormalizedRow[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
-const range = ref<'all' | '30' | '90'>('all')
-
-const rangeOptions = [
-  { value: '30', label: 'Last 30 days' },
-  { value: '90', label: 'Last 90 days' },
-  { value: 'all', label: 'All time' },
-]
 
 async function load(id: string | string[]): Promise<void> {
   const datasetId = Array.isArray(id) ? id[0] : id
@@ -69,21 +60,6 @@ watch(
   { immediate: true },
 )
 
-const filteredRows = computed((): NormalizedRow[] => {
-  return filterByRange(rows.value, 'timestamp', range.value)
-})
-
-const filteredLunchRows = computed((): NormalizedLunchLogEntry[] => {
-  return filteredRows.value as NormalizedLunchLogEntry[]
-})
-
-const filteredWeightRows = computed((): NormalizedWeightLogEntry[] => {
-  return filteredRows.value as NormalizedWeightLogEntry[]
-})
-
-const filteredEventRows = computed((): NormalizedEventLogEntry[] => {
-  return filteredRows.value as NormalizedEventLogEntry[]
-})
 </script>
 
 <template>
@@ -98,26 +74,17 @@ const filteredEventRows = computed((): NormalizedEventLogEntry[] => {
     <template v-else-if="dataset">
       <h1>{{ dataset.cat }} — {{ dataset.title }}</h1>
 
-      <DropdownButton
-        v-model="range"
-        :options="rangeOptions"
-        data-testid="date-filter"
-        maxWidth="8rem"
-      />
-
-      <div v-if="filteredRows.length === 0" class="empty">No data in this range</div>
-
       <LunchLogDashboard
-        v-else-if="dataset.type === 'lunch_log'"
-        :rows="filteredLunchRows"
+        v-if="dataset.type === 'lunch_log'"
+        :rows="rows as NormalizedLunchLogEntry[]"
       />
       <WeightLogDashboard
         v-else-if="dataset.type === 'weight_log'"
-        :rows="filteredWeightRows"
+        :rows="rows as NormalizedWeightLogEntry[]"
       />
       <EventLogDashboard
         v-else-if="dataset.type === 'event_log'"
-        :rows="filteredEventRows"
+        :rows="rows as NormalizedEventLogEntry[]"
       />
     </template>
   </div>
@@ -129,8 +96,7 @@ const filteredEventRows = computed((): NormalizedEventLogEntry[] => {
   margin-bottom: 0.5rem;
 }
 
-.loading,
-.empty {
+.loading {
   text-align: center;
   padding: 2rem;
   color: var(--color-text-muted);

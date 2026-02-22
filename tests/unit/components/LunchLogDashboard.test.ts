@@ -450,10 +450,8 @@ describe('LunchLogDashboard edge cases', () => {
     const wrapper = mountDashboard([]);
     expect(wrapper.find('[data-testid="lunch-dashboard"]').exists()).toBe(true);
 
-    const echarts = wrapper.findAllComponents({ name: 'EChart' });
-    // Double bar chart should have empty data
-    const option = echarts[0].props('option');
-    expect(option.series[0].data).toHaveLength(0);
-    expect(option.series[1].data).toHaveLength(0);
+    // With empty rows, the empty state is shown and charts are not rendered
+    expect(wrapper.find('.empty').exists()).toBe(true);
+    expect(wrapper.findAllComponents({ name: 'EChart' })).toHaveLength(0);
   });
 });
